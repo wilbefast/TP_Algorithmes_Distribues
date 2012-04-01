@@ -1,7 +1,11 @@
+-------------------------------------------------------------------------------
 "Distributed Algorithms"
 University Montpellier 2
 Master of Informatics, first year, second semester
-
+-------------------------------------------------------------------------------
 Fault tolerant implementation of the Naimi Trehel algorithm. 
+-------------------------------------------------------------------------------
 
+This project uses SDL and SDL Net. To compile use:
+`sdl-config --libs` -lSDL_net
 
