@@ -5,19 +5,34 @@
 
 class Demon
 {
+  /* NESTING */
+public:
+  enum State
+  {
+    ASLEEP,
+    NORMAL,
+    ERROR
+  };
+
+  /* CLASS VARIABLES */
+private:
+  //static IPaddress localhost;
+
   /* ATTRIBUTES */
 private:
   unsigned int id;
   UDPsocket socket;
   UDPpacket* packet;
 protected:
-  bool stop;
+  State state;
 
   /* METHODS */
-public:
-  // creation, destruction
+//protected:
+public: /// FIXME
+  // creation, destruction - NB: abstract class
   Demon(unsigned int _id);
   ~Demon();
+public:
   // main loop
   void start();
 
@@ -25,13 +40,14 @@ public:
 private:
   // creation, destruction
   int init();
-  int awaken();
   // main loop
   int run();
 protected:
+  // creation, destruction
+  int awaken();
   // communication
-  int send(Uint8* message, unsigned int destination);
-  int receive(Uint8* message, unsigned int source);
+  int send(const char* message, unsigned int destination);
+  int receive(const char* message, unsigned int source);
 };
 
 #endif // DEMON_HPP_INCLUDED

@@ -6,14 +6,20 @@
 #define FIRST_PORT 49152
 #define PACKET_SIZE 512
 
+
 /* CREATION & DESTRUCTION */
 
 Demon::Demon(unsigned int _id) :
 id(_id),
 socket(),
-packet(NULL)
+packet(NULL),
+state(ERROR)
 {
-  WARN_IF(init() != EXIT_SUCCESS, "Demon::Demon", "Failed to initialise Demon");
+  /* Try to initialise the Demon, catch errors */
+  if(init() != EXIT_SUCCESS)
+    WARN("Demon::Demon", "Initialisation failed");
+  else
+    state = ASLEEP;
 }
 
 int Demon::init()
@@ -32,7 +38,8 @@ int Demon::init()
 
 int Demon::awaken()
 {
-  WARN("Demon::awaken", "Default (null) implementation was called");
+  /* Generic wake-up call which does nothing special */
+  state = NORMAL;
   return EXIT_SUCCESS;
 }
 
@@ -48,20 +55,28 @@ Demon::~Demon()
 
 void Demon::start()
 {
+  /* Make sure them demon has been correctly initialised */
+  if(state != ASLEEP)
+    WARN_RTN_VOID("Demon::start", "Not properly initialised");
+
   /* Wake up method defined by specific algorithm */
   awaken();
 
   /* Run until there's a problem */
-  while(!stop)
+  while(state == NORMAL)
     if(run() != EXIT_SUCCESS)
-      stop = true;
+      state = ERROR;
 }
 
 int Demon::run()
 {
+  /* Send ping */
+  send("ping", id);
+  state = ERROR;
+
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
-    receive(packet->data, packet->address.port);
+    receive((char*)packet->data, packet->address.port);
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -70,7 +85,7 @@ int Demon::run()
 
 /* COMMUNICATION */
 
-int Demon::send(Uint8* message, unsigned int destination)
+int Demon::send(const char* message, unsigned int destination)
 {
   /* Resolve server name */
 	IPaddress server;
@@ -78,6 +93,8 @@ int Demon::send(Uint8* message, unsigned int destination)
               != -1, "Resolving host");
 
   /* Build packet */
+  unsigned int length = strlen(message) + 1;
+  memcpy ((char*)packet->data, message, length);
   packet->address.host = server.host;
   packet->address.port = server.port;
   packet->len = strlen((char *)packet->data) + 1;
@@ -89,7 +106,7 @@ int Demon::send(Uint8* message, unsigned int destination)
   return EXIT_SUCCESS;
 }
 
-int Demon::receive(Uint8* message, unsigned int source)
+int Demon::receive(const char* message, unsigned int source)
 {
   /* Resolve server name  */
   LOG_I("Received message", message);
