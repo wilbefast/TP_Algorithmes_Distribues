@@ -50,6 +50,7 @@ int Demon::awaken()
 
 Demon::~Demon()
 {
+  printf("Demon %d destroyed\n", id);
   /* Clean up */
 	SDLNet_FreePacket(packet);
 	SDLNet_UDP_Close(socket);
@@ -76,6 +77,7 @@ void Demon::start()
 int Demon::run()
 {
   /* Send ping */
+  send("bink", id);
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
@@ -111,7 +113,7 @@ int Demon::receive(const char* message, unsigned int source)
   printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
 
   /* All clear ! */
-  state = STOPPING;
+  state = SHUTDOWN;
   return EXIT_SUCCESS;
 }
 

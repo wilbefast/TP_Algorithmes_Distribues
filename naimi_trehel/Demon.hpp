@@ -6,13 +6,13 @@
 class Demon
 {
   /* NESTING */
-public:
+protected:
   enum State
   {
     ASLEEP,
     NORMAL,
     ERROR,
-    STOPPING
+    SHUTDOWN
   };
 
   /* CLASS VARIABLES */
@@ -28,8 +28,7 @@ protected:
   State state;
 
   /* METHODS */
-//protected:
-public: /// FIXME
+protected:
   // creation, destruction - NB: abstract class
   Demon(unsigned int _id);
   ~Demon();

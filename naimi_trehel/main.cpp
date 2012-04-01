@@ -4,7 +4,7 @@
 #include "SDL/SDL_net.h"
 
 #include "SDL_assert.h"
-#include "Demon.hpp"
+#include "NTDemon.hpp"
 
 int main(int argc, char **argv)
 {
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	unsigned int id = (argc > 1) ? atoi(argv[1]) : 0;
 
   /* Creation the Demon */
-  Demon demon(id);
+  NTDemon demon(id);
   demon.start();
 
   /* Clean up */
