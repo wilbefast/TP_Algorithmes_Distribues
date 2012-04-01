@@ -4,11 +4,12 @@
 
 #define BASE_PORT 49152
 #define LOCALHOST_HEX 0x10007f
-#define BASE_PORT_HEX 0x0c
+#define BASE_PORT_HEX 0xc0
 #define PORT_SPACING_HEX 0x100
 #define PACKET_SIZE 512
 
-#define ID_TO_PORT(id) BASE_PORT_HEX+id*PORT_SPACING_HEX
+#define ID2PORT(id) BASE_PORT_HEX+id*PORT_SPACING_HEX
+#define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
 
 
 /* CREATION & DESTRUCTION */
@@ -42,7 +43,7 @@ int Demon::init()
 int Demon::awaken()
 {
   /* Generic wake-up call which does nothing special */
-  printf("Demon woke up\n");
+  printf("Demon %d woke up\n", id);
   state = NORMAL;
   return EXIT_SUCCESS;
 }
@@ -80,7 +81,7 @@ int Demon::run()
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
-    receive((char*)packet->data, packet->address.port);
+    receive((char*)packet->data, PORT2ID(packet->address.port));
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -95,12 +96,12 @@ int Demon::send(const char* message, unsigned int destination)
   unsigned int length = strlen(message) + 1;
   memcpy ((char*)packet->data, message, length);
   packet->address.host = LOCALHOST_HEX;
-  packet->address.port = ID_TO_PORT(destination);
+  packet->address.port = ID2PORT(destination);
   packet->len = length;
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  printf("Demon sent message '%s' to %d\n", message, destination);
+  printf("Demon %d sent message '%s' to Demon %d\n", id, message, destination);
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -109,7 +110,7 @@ int Demon::send(const char* message, unsigned int destination)
 int Demon::receive(const char* message, unsigned int source)
 {
   /* Generic reception call which does nothing special */
-  printf("Demon received message '%s' from %d\n", message, source);
+  printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
 
   /* All clear ! */
   return EXIT_SUCCESS;
