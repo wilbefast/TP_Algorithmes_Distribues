@@ -2,9 +2,13 @@
 
 #include "SDL_assert.h"
 
-#define LOCALHOST "127.0.0.1"
-#define FIRST_PORT 49152
+#define BASE_PORT 49152
+#define LOCALHOST_HEX 0x10007f
+#define BASE_PORT_HEX 0x0c
+#define PORT_SPACING_HEX 0x100
 #define PACKET_SIZE 512
+
+#define ID_TO_PORT(id) BASE_PORT_HEX+id*PORT_SPACING_HEX
 
 
 /* CREATION & DESTRUCTION */
@@ -25,8 +29,7 @@ state(ERROR)
 int Demon::init()
 {
 	/* Open a socket on the port corresponding to our identifier */
-	ASSERT_NET(socket = SDLNet_UDP_Open(id + FIRST_PORT),
-          "Opening UDP socket");
+	ASSERT_NET(socket = SDLNet_UDP_Open(BASE_PORT+id), "Opening UDP socket");
 
 	/* Allocate memory for the packet */
 	ASSERT(packet = SDLNet_AllocPacket(PACKET_SIZE),
@@ -39,6 +42,7 @@ int Demon::init()
 int Demon::awaken()
 {
   /* Generic wake-up call which does nothing special */
+  printf("Demon woke up\n");
   state = NORMAL;
   return EXIT_SUCCESS;
 }
@@ -87,20 +91,16 @@ int Demon::run()
 
 int Demon::send(const char* message, unsigned int destination)
 {
-  /* Resolve server name */
-	IPaddress server;
-	ASSERT_NET(SDLNet_ResolveHost(&server, LOCALHOST, destination + FIRST_PORT)
-              != -1, "Resolving host");
-
   /* Build packet */
   unsigned int length = strlen(message) + 1;
   memcpy ((char*)packet->data, message, length);
-  packet->address.host = server.host;
-  packet->address.port = server.port;
-  packet->len = strlen((char *)packet->data) + 1;
+  packet->address.host = LOCALHOST_HEX;
+  packet->address.port = ID_TO_PORT(destination);
+  packet->len = length;
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
+  printf("Demon sent message '%s' to %d\n", message, destination);
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -108,8 +108,8 @@ int Demon::send(const char* message, unsigned int destination)
 
 int Demon::receive(const char* message, unsigned int source)
 {
-  /* Resolve server name  */
-  LOG_I("Received message", message);
+  /* Generic reception call which does nothing special */
+  printf("Demon received message '%s' from %d\n", message, source);
 
   /* All clear ! */
   return EXIT_SUCCESS;
