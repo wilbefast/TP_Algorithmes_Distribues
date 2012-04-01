@@ -11,8 +11,11 @@ int main(int argc, char **argv)
 	/* Initialize SDL_net */
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
+	/* Read id from arguments */
+	unsigned int id = (argc > 1) ? atoi(argv[1]) : 0;
+
   /* Creation the Demon */
-  Demon demon(0);
+  Demon demon(id);
   demon.start();
 
   /* Clean up */

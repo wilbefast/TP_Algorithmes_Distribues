@@ -76,8 +76,8 @@ void Demon::start()
 int Demon::run()
 {
   /* Send ping */
-  send("ping", id);
-  state = ERROR;
+  for(int i = (id+1)%3; i != id; i=(i+1)%3)
+    send("ping", i);
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
@@ -113,6 +113,7 @@ int Demon::receive(const char* message, unsigned int source)
   printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
 
   /* All clear ! */
+  state = STOPPING;
   return EXIT_SUCCESS;
 }
 

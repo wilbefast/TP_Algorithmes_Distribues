@@ -11,7 +11,8 @@ public:
   {
     ASLEEP,
     NORMAL,
-    ERROR
+    ERROR,
+    STOPPING
   };
 
   /* CLASS VARIABLES */
