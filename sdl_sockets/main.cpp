@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	/* Initialize SDL_net */
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
-	/* Open a socket on random port */
+	/* Open a socket on port */
   UDPsocket socket;
 	ASSERT_NET(socket = SDLNet_UDP_Open(49152), "Opening UDP socket");
 
@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 
 		packet->address.host = server.host;	/* Set the destination host */
 		packet->address.port = server.port;	/* And destination port */
-		printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
 
 		packet->len = strlen((char *)packet->data) + 1;
 		SDLNet_UDP_Send(socket, -1, packet); /* This sets the packet->channel */

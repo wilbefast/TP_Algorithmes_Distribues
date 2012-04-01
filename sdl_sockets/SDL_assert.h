@@ -10,16 +10,19 @@ William J. Dyce
 
 /* ERROR LOGGING */
 
-#define LOG(level, what, why) \
-		printf("%s - %s: %s\n", level, what, why)
-#define LOG_I(what, why) LOG("INFO", what, why)
-#define LOG_W(what, why) LOG("WARNING", what, why)
-#define LOG_E(what, why) LOG("ERROR", what, why)
+#define LOG(level, what, why);                          \
+		printf("%s - %s: %s\n", level, what, why);
+#define LOG_I(what, why);                               \
+    LOG("INFO", what, why);
+#define LOG_W(what, why);                               \
+    LOG("WARNING", what, why);
+#define LOG_E(what, why);                               \
+    LOG("ERROR", what, why);
 
 /* WARNINGS */
 
-#define WARN(what, why)                             \
-        LOG_W(what, why)
+#define WARN(what, why);                                \
+        LOG_W(what, why);
 
 #define WARN_IF(problem, what, why);                    \
     if(problem)                                         \
