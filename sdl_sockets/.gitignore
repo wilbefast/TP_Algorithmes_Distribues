@@ -1,0 +1,6 @@
+# Ingore compiled units
+bin/**
+obj/**
+# Ignore codeblocks project files
+*.cbp
+*.depend
