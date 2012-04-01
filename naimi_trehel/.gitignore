@@ -4,3 +4,4 @@ obj/**
 # Ignore codeblocks project files
 *.cbp
 *.depend
+*.layout
