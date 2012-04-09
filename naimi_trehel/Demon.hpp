@@ -1,7 +1,13 @@
 #ifndef DEMON_HPP_INCLUDED
 #define DEMON_HPP_INCLUDED
 
+#include <list>
+
 #include "SDL/SDL_net.h"
+
+typedef unsigned int id_t;
+typedef std::list<id_t> id_list_t;
+typedef id_list_t::iterator id_list_it;
 
 class Demon
 {
@@ -21,9 +27,10 @@ private:
 
   /* ATTRIBUTES */
 private:
-  unsigned int id;
+  id_t id;
   UDPsocket socket;
   UDPpacket* packet;
+  id_list_t peers;
 protected:
   State state;
 
@@ -40,14 +47,15 @@ public:
 private:
   // creation, destruction
   int init(const char* registry_file);
+  int init_identifiers(const char* registry_file);
   // main loop
   int run();
 protected:
   // creation, destruction
   int awaken();
   // communication
-  int send(const char* message, unsigned int destination);
-  int receive(const char* message, unsigned int source);
+  int send(const char* message, id_t destination);
+  int receive(const char* message, id_t source);
 };
 
 #endif // DEMON_HPP_INCLUDED

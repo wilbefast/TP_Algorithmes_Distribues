@@ -7,6 +7,7 @@
 #include "SDL_assert.h"
 
 #define BASE_PORT 49152
+#define MAX_DEMONS 1000
 #define LOCALHOST_HEX 0x10007f
 #define BASE_PORT_HEX 0xc0
 #define PORT_SPACING_HEX 0x100
@@ -24,6 +25,7 @@ Demon::Demon(const char* registry_file) :
 id(0),
 socket(),
 packet(NULL),
+peers(),
 state(ERROR)
 {
   /* Try to initialise the Demon, catch errors */
@@ -36,12 +38,8 @@ state(ERROR)
 int Demon::init(const char* registry_file)
 {
   /* Read and write in the registry */
-  // open in write mode first in order to block other from accessing the file
-  ofstream oregistry(registry_file, ios::app);
-  ASSERT(oregistry, "Opening file-writer");
-  // open in read mode and read the identifiers of other Demons
-  ifstream iregistry(registry_file);
-  ASSERT(iregistry, "Opening file-reader");
+  ASSERT(init_identifiers(registry_file) == EXIT_SUCCESS,
+      "Reading/editing registry");
 
 	/* Open a socket on the port corresponding to our identifier */
 	ASSERT_NET(socket = SDLNet_UDP_Open(BASE_PORT+id), "Opening UDP socket");
@@ -52,6 +50,49 @@ int Demon::init(const char* registry_file)
 
   /* All clear! */
   return EXIT_SUCCESS;
+}
+
+int Demon::init_identifiers(const char* registry_file)
+{
+  /* Open in write mode first in order to block other from accessing the file */
+  ofstream oregistry(registry_file, ios::app);
+  ASSERT(oregistry, "Opening file-writer");
+
+  /* Open in read mode */
+  ifstream iregistry(registry_file);
+  ASSERT(iregistry, "Opening file-reader");
+
+  /* Read the identifiers of the other Demons */
+  unsigned int new_peer;
+  while(iregistry >> new_peer)
+    peers.push_back(new_peer);
+
+  /* choose an identifier not already taken by another demon */
+  for(id = 0; id < MAX_DEMONS; id++)
+  {
+    bool in_use = false;
+
+    // check whether the current identifier is in use by a peer
+    for(id_list_it i = peers.begin(); i != peers.end(); i++)
+      if((*i) == id)
+      {
+        // skip this identifier if anybody else is using it
+        in_use = true;
+        break;
+      }
+
+    // stop at the first identifier not used by any of the Demon's peers
+    if(!in_use)
+      break;
+  }
+
+  /* Register this identifier in the file */
+  oregistry << endl << id;
+
+  /* All clear! */
+  return EXIT_SUCCESS;
+
+  // NB - all streams are closed automatically at the end of the block
 }
 
 int Demon::awaken()
@@ -91,7 +132,7 @@ void Demon::start()
 int Demon::run()
 {
   /* Send ping */
-  send("bink", id);
+  //send("bink", id);
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
@@ -104,7 +145,7 @@ int Demon::run()
 
 /* COMMUNICATION */
 
-int Demon::send(const char* message, unsigned int destination)
+int Demon::send(const char* message, id_t destination)
 {
   /* Build packet */
   unsigned int length = strlen(message) + 1;
@@ -121,7 +162,7 @@ int Demon::send(const char* message, unsigned int destination)
   return EXIT_SUCCESS;
 }
 
-int Demon::receive(const char* message, unsigned int source)
+int Demon::receive(const char* message, id_t source)
 {
   /* Generic reception call which does nothing special */
   printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
