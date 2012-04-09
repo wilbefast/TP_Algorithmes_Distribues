@@ -169,8 +169,9 @@ void Demon::start()
 
 int Demon::run()
 {
-  /* Send ping */
-  send("bink", id);
+  /* Send ping to next peer */
+  if(peers.size() > 0)
+    send("bink", (id+1)%peers.size());
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
@@ -183,7 +184,7 @@ int Demon::run()
 
 /* COMMUNICATION */
 
-int Demon::send(const char* message, id_t destination)
+void Demon::send(const char* message, id_t destination)
 {
   /* Build packet */
   unsigned int length = strlen(message) + 1;
@@ -195,18 +196,21 @@ int Demon::send(const char* message, id_t destination)
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
   printf("Demon %d sent message '%s' to Demon %d\n", id, message, destination);
-
-  /* All clear ! */
-  return EXIT_SUCCESS;
 }
 
-int Demon::receive(const char* message, id_t source)
+void Demon::broadcast(const char* message)
+{
+  /* Send message to each peer */
+  for(id_list_it i = peers.begin(); i != peers.end(); i++)
+    send(message, (*i));
+}
+
+void Demon::receive(const char* message, id_t source)
 {
   /* Generic reception call which does nothing special */
   printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
 
   /* All clear ! */
   state = SHUTDOWN;
-  return EXIT_SUCCESS;
 }
 

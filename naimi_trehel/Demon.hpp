@@ -58,8 +58,9 @@ protected:
   // creation, destruction
   int awaken();
   // communication
-  int send(const char* message, id_t destination);
-  int receive(const char* message, id_t source);
+  void send(const char* message, id_t destination);
+  void broadcast(const char* message);
+  void receive(const char* message, id_t source);
 };
 
 #endif // DEMON_HPP_INCLUDED
