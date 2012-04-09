@@ -30,7 +30,7 @@ protected:
   /* METHODS */
 protected:
   // creation, destruction - NB: abstract class
-  Demon(unsigned int _id);
+  Demon(const char* registry_file);
   ~Demon();
 public:
   // main loop
@@ -39,7 +39,7 @@ public:
   /* SUBROUTINES */
 private:
   // creation, destruction
-  int init();
+  int init(const char* registry_file);
   // main loop
   int run();
 protected:

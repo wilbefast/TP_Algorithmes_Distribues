@@ -1,6 +1,6 @@
 #include "NTDemon.hpp"
 
-NTDemon::NTDemon(unsigned int _id) :
-Demon(_id)
+NTDemon::NTDemon(const char* registry_file) :
+Demon(registry_file)
 {
 }

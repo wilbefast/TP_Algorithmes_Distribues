@@ -1,3 +1,7 @@
+// File streaming
+#include <iostream>
+#include <fstream>
+
 #include "Demon.hpp"
 
 #include "SDL_assert.h"
@@ -12,23 +16,33 @@
 #define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
 
 
+using namespace std;
+
 /* CREATION & DESTRUCTION */
 
-Demon::Demon(unsigned int _id) :
-id(_id),
+Demon::Demon(const char* registry_file) :
+id(0),
 socket(),
 packet(NULL),
 state(ERROR)
 {
   /* Try to initialise the Demon, catch errors */
-  if(init() != EXIT_SUCCESS)
+  if(init(registry_file) != EXIT_SUCCESS)
     WARN("Demon::Demon", "Initialisation failed");
   else
     state = ASLEEP;
 }
 
-int Demon::init()
+int Demon::init(const char* registry_file)
 {
+  /* Read and write in the registry */
+  // open in write mode first in order to block other from accessing the file
+  ofstream oregistry(registry_file, ios::app);
+  ASSERT(oregistry, "Opening file-writer");
+  // open in read mode and read the identifiers of other Demons
+  ifstream iregistry(registry_file);
+  ASSERT(iregistry, "Opening file-reader");
+
 	/* Open a socket on the port corresponding to our identifier */
 	ASSERT_NET(socket = SDLNet_UDP_Open(BASE_PORT+id), "Opening UDP socket");
 
