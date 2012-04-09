@@ -21,7 +21,7 @@ using namespace std;
 
 /* CREATION & DESTRUCTION */
 
-Demon::Demon(const char* registry_file) :
+Demon::Demon() :
 id(0),
 socket(),
 packet(NULL),
@@ -29,16 +29,16 @@ peers(),
 state(ERROR)
 {
   /* Try to initialise the Demon, catch errors */
-  if(init(registry_file) != EXIT_SUCCESS)
+  if(init() != EXIT_SUCCESS)
     WARN("Demon::Demon", "Initialisation failed");
   else
     state = ASLEEP;
 }
 
-int Demon::init(const char* registry_file)
+int Demon::init()
 {
   /* Read and write in the registry */
-  ASSERT(init_identifiers(registry_file) == EXIT_SUCCESS,
+  ASSERT(register_id() == EXIT_SUCCESS,
       "Reading/editing registry");
 
 	/* Open a socket on the port corresponding to our identifier */
@@ -52,15 +52,15 @@ int Demon::init(const char* registry_file)
   return EXIT_SUCCESS;
 }
 
-int Demon::init_identifiers(const char* registry_file)
+int Demon::register_id()
 {
   /* Open in write mode first in order to block other from accessing the file */
-  ofstream oregistry(registry_file, ios::app);
-  ASSERT(oregistry, "Opening file-writer");
+  ofstream oregistry(REGISTRY, ios::app);
+  ASSERT(oregistry, "Opening registry file-writer");
 
   /* Open in read mode */
-  ifstream iregistry(registry_file);
-  ASSERT(iregistry, "Opening file-reader");
+  ifstream iregistry(REGISTRY);
+  ASSERT(iregistry, "Opening registry file-reader");
 
   /* Read the identifiers of the other Demons */
   unsigned int new_peer;
@@ -87,7 +87,7 @@ int Demon::init_identifiers(const char* registry_file)
   }
 
   /* Register this identifier in the file */
-  oregistry << endl << id;
+  oregistry << id << endl;
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -106,9 +106,47 @@ int Demon::awaken()
 Demon::~Demon()
 {
   printf("Demon %d destroyed\n", id);
-  /* Clean up */
+
+  /* Attempt to clean up the mess */
+  WARN_IF(shutdown() != EXIT_SUCCESS, "Demon::~Demon",
+          "Demon didn't exit cleanly!");
+}
+
+int Demon::shutdown()
+{
+  /* Remove identifier from registry */
+  ASSERT(unregister_id() == EXIT_SUCCESS, "Removing identifier from registry");
+
+  /* Clean up SDL - "always succeeds" */
 	SDLNet_FreePacket(packet);
 	SDLNet_UDP_Close(socket);
+
+	/* All clear! */
+	return EXIT_SUCCESS;
+}
+
+int Demon::unregister_id()
+{
+  /* Create a temporary copy of the register */
+  ofstream otemp("temp.txt");
+  ASSERT(otemp, "Opening 'temp.txt' file-writer");
+
+  /* Open in read mode */
+  ifstream iregistry(REGISTRY);
+  ASSERT(iregistry, "Opening registry file-reader");
+
+  /* Copy all identifiers except this Demon's */
+  id_t peer;
+  while(iregistry >> peer)
+    if(peer != id)
+      otemp << peer << endl;
+
+  /* Out with the old, in with the new */
+  remove(REGISTRY);
+  rename("temp.txt", REGISTRY);
+
+  /* All clear! */
+  return EXIT_SUCCESS;
 }
 
 
@@ -132,7 +170,7 @@ void Demon::start()
 int Demon::run()
 {
   /* Send ping */
-  //send("bink", id);
+  send("bink", id);
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))

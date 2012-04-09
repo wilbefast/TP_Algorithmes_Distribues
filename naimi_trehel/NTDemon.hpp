@@ -10,7 +10,7 @@ class NTDemon : public Demon
   /* METHODS */
 public:
   // creation, destruction
-  NTDemon(const char* registry_file);
+  NTDemon();
 };
 
 #endif // NTDEMON_HPP_INCLUDED

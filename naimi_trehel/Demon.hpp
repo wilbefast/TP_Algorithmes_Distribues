@@ -5,6 +5,8 @@
 
 #include "SDL/SDL_net.h"
 
+#define REGISTRY "registry.txt"
+
 typedef unsigned int id_t;
 typedef std::list<id_t> id_list_t;
 typedef id_list_t::iterator id_list_it;
@@ -37,7 +39,7 @@ protected:
   /* METHODS */
 protected:
   // creation, destruction - NB: abstract class
-  Demon(const char* registry_file);
+  Demon();
   ~Demon();
 public:
   // main loop
@@ -46,8 +48,10 @@ public:
   /* SUBROUTINES */
 private:
   // creation, destruction
-  int init(const char* registry_file);
-  int init_identifiers(const char* registry_file);
+  int init();
+  int register_id();
+  int shutdown();
+  int unregister_id();
   // main loop
   int run();
 protected:

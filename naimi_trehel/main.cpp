@@ -8,8 +8,6 @@
 // Application
 #include "NTDemon.hpp"
 
-#define REGISTRY "registry.txt"
-
 using namespace std;
 
 int main(int argc, char **argv)
@@ -18,7 +16,7 @@ int main(int argc, char **argv)
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
   /* Create the Demon */
-  NTDemon demon(REGISTRY);
+  NTDemon demon;
 
   /* Launch the Demon */
   demon.start();
