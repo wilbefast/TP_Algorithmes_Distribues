@@ -1,4 +1,6 @@
-# Ingore compiled units
+# Ignore text registry file
+registry.txt
+# Ignore compiled units
 bin/**
 obj/**
 # Ignore codeblocks project files
