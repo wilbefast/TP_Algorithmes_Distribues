@@ -77,7 +77,7 @@ void Demon::start()
 int Demon::run()
 {
   /* Send ping */
-  send("bink", id);
+  send("bink", (id+1)%2);
 
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))

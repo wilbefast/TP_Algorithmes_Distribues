@@ -14,9 +14,11 @@ int main(int argc, char **argv)
 	/* Read id from arguments */
 	unsigned int id = (argc > 1) ? atoi(argv[1]) : 0;
 
-  /* Creation the Demon */
-  NTDemon demon(id);
-  demon.start();
+  /* Create the Demon */
+  {
+    NTDemon demon(id);
+    demon.start();
+  }
 
   /* Clean up */
 	SDLNet_Quit();

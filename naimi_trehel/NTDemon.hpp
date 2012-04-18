@@ -11,6 +11,8 @@ class NTDemon : public Demon
 public:
   // creation, destruction
   NTDemon(unsigned int _id);
+  // overrides
+  int receive(const char* message, unsigned int destination);
 };
 
 #endif // NTDEMON_HPP_INCLUDED

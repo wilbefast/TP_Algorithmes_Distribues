@@ -17,7 +17,6 @@ protected:
 
   /* CLASS VARIABLES */
 private:
-  //static IPaddress localhost;
 
   /* ATTRIBUTES */
 private:
@@ -47,7 +46,7 @@ protected:
   int awaken();
   // communication
   int send(const char* message, unsigned int destination);
-  int receive(const char* message, unsigned int source);
+  virtual int receive(const char* message, unsigned int source);
 };
 
 #endif // DEMON_HPP_INCLUDED
