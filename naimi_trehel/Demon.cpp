@@ -6,8 +6,9 @@
 
 #include "SDL_assert.h"
 
+#define REGISTRY "registry.txt"
+
 #define BASE_PORT 49152
-#define MAX_DEMONS 1000
 #define LOCALHOST_HEX 0x10007f
 #define BASE_PORT_HEX 0xc0
 #define PORT_SPACING_HEX 0x100
@@ -22,9 +23,11 @@ using namespace std;
 /* CREATION & DESTRUCTION */
 
 Demon::Demon() :
-id(0),
 socket(),
 packet(NULL),
+this_tick(0),
+next_tick(0),
+id(0),
 peers(),
 state(ERROR)
 {
@@ -88,6 +91,7 @@ int Demon::register_id()
 
   /* Register this identifier in the file */
   oregistry << id << endl;
+  printf("This Demon believes that it is number %d\n", id);
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -163,22 +167,37 @@ void Demon::start()
 
   /* Run until there's a problem */
   while(state == NORMAL)
+  {
+    // don't use 100% of the CPU !
+    wait();
+    // break if there's an error
     if(run() != EXIT_SUCCESS)
       state = ERROR;
+  }
 }
 
 int Demon::run()
 {
-  /* Send ping to next peer */
-  if(peers.size() > 0)
-    send("bink", (id+1)%peers.size());
-
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
 
   /* All clear ! */
   return EXIT_SUCCESS;
+}
+
+// Regulate the number of frames per second, pausing only if need be
+void Demon::wait()
+{
+  // Get the current time-stamp
+  this_tick = SDL_GetTicks();
+
+  // If it's not yet time for the next update, wait a will
+	if (this_tick < next_tick )
+		SDL_Delay(next_tick - this_tick);
+
+  // Calculate when the next update should be
+	next_tick = this_tick + (1000/MAX_FPS);
 }
 
 

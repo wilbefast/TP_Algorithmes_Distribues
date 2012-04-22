@@ -6,17 +6,20 @@
 #include "SDL/SDL_net.h"
 #include "SDL_assert.h"
 // Application
-#include "NTDemon.hpp"
+#include "NTDemonX.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+  /* Initialize SDL (needed for timing) */
+  ASSERT_SDL(SDL_Init(0) >= 0, "Initialising SDL");
+
 	/* Initialize SDL_net */
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
   /* Create the Demon */
-  NTDemon demon;
+  NTDemonX demon;
 
   /* Launch the Demon */
   demon.start();

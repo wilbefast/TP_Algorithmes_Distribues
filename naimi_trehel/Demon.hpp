@@ -5,9 +5,10 @@
 
 #include "SDL/SDL_net.h"
 
-#define REGISTRY "registry.txt"
+#define MAX_DEMONS 1000
+#define MAX_FPS 30
 
-typedef unsigned int id_t;
+// NB - 'id_t' is defined by POSIX as a signed integer
 typedef std::list<id_t> id_list_t;
 typedef id_list_t::iterator id_list_it;
 
@@ -23,17 +24,18 @@ protected:
     SHUTDOWN
   };
 
-  /* CLASS VARIABLES */
-private:
-  //static IPaddress localhost;
-
   /* ATTRIBUTES */
 private:
-  id_t id;
+  // communication
   UDPsocket socket;
   UDPpacket* packet;
-  id_list_t peers;
+  // timing
+  int this_tick, next_tick;
 protected:
+  // identifiers
+  id_t id;
+  id_list_t peers;
+  // automaton
   State state;
 
   /* METHODS */
@@ -54,13 +56,14 @@ private:
   int unregister_id();
   // main loop
   int run();
+  void wait();
 protected:
   // creation, destruction
-  int awaken();
+  virtual int awaken();
   // communication
   void send(const char* message, id_t destination);
   void broadcast(const char* message);
-  void receive(const char* message, id_t source);
+  virtual void receive(const char* message, id_t source);
 };
 
 #endif // DEMON_HPP_INCLUDED
