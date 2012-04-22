@@ -8,9 +8,10 @@
 #define MAX_DEMONS 1000
 #define MAX_FPS 30
 
-// NB - 'id_t' is defined by POSIX as a signed integer
-typedef std::list<id_t> id_list_t;
-typedef id_list_t::iterator id_list_it;
+// NB - 'id_t' is already defined by POSIX as an *unsigned* integer
+typedef int sid_t;  // 'signed identifier type'
+typedef std::list<sid_t> sid_list_t;
+typedef sid_list_t::iterator sid_list_it;
 
 class Demon
 {
@@ -33,8 +34,8 @@ private:
   int this_tick, next_tick;
 protected:
   // identifiers
-  id_t id;
-  id_list_t peers;
+  sid_t id;
+  sid_list_t peers;
   // automaton
   State state;
 
@@ -61,9 +62,9 @@ protected:
   // creation, destruction
   virtual int awaken();
   // communication
-  void send(const char* message, id_t destination);
+  void send(const char* message, sid_t destination);
   void broadcast(const char* message);
-  virtual void receive(const char* message, id_t source);
+  virtual void receive(const char* message, sid_t source);
 };
 
 #endif // DEMON_HPP_INCLUDED

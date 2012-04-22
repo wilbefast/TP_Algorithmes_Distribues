@@ -2,6 +2,8 @@
 
 #include "wjd_math.hpp"
 
+#define CS_DURATION 3000
+
 NTDemonX::NTDemonX() :
 Demon(),
 has_token(false),
@@ -34,12 +36,70 @@ int NTDemonX::awaken()
   return EXIT_SUCCESS;
 }
 
-void NTDemonX::receive(const char* message, id_t source)
+void NTDemonX::receive(const char* message, sid_t source)
 {
-  // A new Demon is registring its existence
-  if(!strcmp(message, "new"))
+  // standard utility protocols
+  Demon::receive(message, source);
+
+  // received a request or the critical section
+  if(!strcmp("request", message))
   {
-    peers.push_back(source);
-    printf("Demon %d: 'I added %d as a new peer'\n", id, source);
+
+  }
+}
+
+/* SUBROUTINES */
+
+void NTDemonX::supplication()
+{
+  // requesting on behalf of self, not a different site
+  is_requesting = true;
+
+  // get the token from father, thus indirectly from the root
+  if(father != -1)
+  {
+    send("request",father);
+    father = -1;
+  }
+}
+
+void NTDemonX::critical_section()
+{
+  SDL_Delay(CS_DURATION);
+}
+
+void NTDemonX::liberation()
+{
+}
+
+void NTDemonX::receive_request(sid_t source)
+{
+  // if this is the tail of the queue, add the requester behind it
+  if(is_requesting && next == -1)
+    next = source;
+
+  // if this is the root of the tree, the requester becomes to new root
+  if(has_token && father == -1)
+  {
+    has_token = false;
+    send("token", source);
+    father = source;
+  }
+  // otherwise ask the current root for the token on behalf of the requester
+  else
+    send("request", father);
+}
+
+void NTDemonX::receive_token(sid_t source)
+{
+  // this site is now the root of the tree
+  has_token = true;
+
+  // perform critical section if the token was requested for the site itself
+  if(is_requesting)
+  {
+    critical_section();
+    liberation();
+    is_requesting = false;
   }
 }

@@ -76,7 +76,7 @@ int Demon::register_id()
     bool in_use = false;
 
     // check whether the current identifier is in use by a peer
-    for(id_list_it i = peers.begin(); i != peers.end(); i++)
+    for(sid_list_it i = peers.begin(); i != peers.end(); i++)
       if((*i) == id)
       {
         // skip this identifier if anybody else is using it
@@ -140,7 +140,7 @@ int Demon::unregister_id()
   ASSERT(iregistry, "Opening registry file-reader");
 
   /* Copy all identifiers except this Demon's */
-  id_t peer;
+  sid_t peer;
   while(iregistry >> peer)
     if(peer != id)
       otemp << peer << endl;
@@ -203,7 +203,7 @@ void Demon::wait()
 
 /* COMMUNICATION */
 
-void Demon::send(const char* message, id_t destination)
+void Demon::send(const char* message, sid_t destination)
 {
   /* Build packet */
   unsigned int length = strlen(message) + 1;
@@ -220,16 +220,19 @@ void Demon::send(const char* message, id_t destination)
 void Demon::broadcast(const char* message)
 {
   /* Send message to each peer */
-  for(id_list_it i = peers.begin(); i != peers.end(); i++)
+  for(sid_list_it i = peers.begin(); i != peers.end(); i++)
     send(message, (*i));
 }
 
-void Demon::receive(const char* message, id_t source)
+void Demon::receive(const char* message, sid_t source)
 {
-  /* Generic reception call which does nothing special */
-  printf("Demon %d received message '%s' from Demon %d\n", id, message, source);
+  /* Standard utility protocols */
 
-  /* All clear ! */
-  state = SHUTDOWN;
+  // A new Demon is registring its existence
+  if(!strcmp(message, "new"))
+  {
+    peers.push_back(source);
+    printf("Demon %d: 'I added %d as a new peer'\n", id, source);
+  }
 }
 

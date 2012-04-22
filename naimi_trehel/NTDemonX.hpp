@@ -11,8 +11,8 @@ class NTDemonX : public Demon
 private:
   bool has_token;
   bool is_requesting;
-  id_t father;
-  id_t next;
+  sid_t father;
+  sid_t next;
 
   /* METHODS */
 public:
@@ -21,7 +21,14 @@ public:
 protected:
   // overrides
   int awaken();
-  void receive(const char* message, id_t source);
+  void receive(const char* message, sid_t source);
+private:
+  // subroutines
+  void supplication();
+  void critical_section();
+  void liberation();
+  void receive_request(sid_t source);
+  void receive_token(sid_t source);
 };
 
 #endif // NTDEMONX_HPP_INCLUDED
