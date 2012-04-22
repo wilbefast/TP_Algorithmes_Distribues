@@ -60,11 +60,13 @@ private:
   void wait();
 protected:
   // creation, destruction
-  virtual int awaken();
+  virtual void awaken();
+  // main loop
+  virtual void idle();
   // communication
   void send(const char* message, sid_t destination);
   void broadcast(const char* message);
-  virtual void receive(const char* message, sid_t source);
+  virtual bool receive(const char* message, sid_t source);
 };
 
 #endif // DEMON_HPP_INCLUDED

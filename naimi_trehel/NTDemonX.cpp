@@ -2,7 +2,8 @@
 
 #include "wjd_math.hpp"
 
-#define CS_DURATION 3000
+#define CS_MAX_DURATION 5000
+#define CS_PERCENT_CHANCE 1
 
 NTDemonX::NTDemonX() :
 Demon(),
@@ -13,7 +14,7 @@ next(-1)
 {
 }
 
-int NTDemonX::awaken()
+void NTDemonX::awaken()
 {
   state = NORMAL;
 
@@ -29,34 +30,56 @@ int NTDemonX::awaken()
   {
     father = peers.front();
     printf("Demon %d: 'Demon %d has the token'\n", id, father);
-    broadcast("new");
   }
-
-  /* All clear ! */
-  return EXIT_SUCCESS;
 }
 
-void NTDemonX::receive(const char* message, sid_t source)
+void NTDemonX::idle()
+{
+  /* Draw a random number to determine whether to simulate critical section */
+  if(!is_requesting && rand()%100 <= CS_PERCENT_CHANCE)
+    supplication();
+}
+
+bool NTDemonX::receive(const char* message, sid_t source)
 {
   // standard utility protocols
-  Demon::receive(message, source);
+  if(Demon::receive(message, source))
+    ;
 
-  // received a request or the critical section
-  if(!strcmp("request", message))
+  // received a request for the critical section
+  else if(!strcmp("request", message))
+    receive_request(source);
+
+  // received the token
+  else if(!strcmp("token", message))
+    receive_token(source);
+
+  // default !
+  else
   {
-
+    printf("Demon %d: 'Unknown message \"%s\" from %d'\n", id, message, source);
+    return false;
   }
+
+  // event was consumed
+  return true;
 }
 
 /* SUBROUTINES */
 
 void NTDemonX::supplication()
 {
+  printf("Demon %d: 'I am requesting critical section now'\n", id);
+
   // requesting on behalf of self, not a different site
   is_requesting = true;
 
+  // if we already have the token we
+  if(has_token)
+    critical_section();
+
   // get the token from father, thus indirectly from the root
-  if(father != -1)
+  else if(father != -1)
   {
     send("request",father);
     father = -1;
@@ -65,28 +88,45 @@ void NTDemonX::supplication()
 
 void NTDemonX::critical_section()
 {
-  SDL_Delay(CS_DURATION);
+  printf("Demon %d: 'I am entering critical section now'\n", id);
+
+  /* Simulate critical section by waiting for a short duration */
+  SDL_Delay(rand() % CS_MAX_DURATION);
+
+  /* Liberate at the end of critical section */
+  liberation();
 }
 
 void NTDemonX::liberation()
 {
+  printf("Demon %d: 'I am leaving critical section now'\n", id);
+
+  /* Critical section no longer required */
+  is_requesting = false;
+
+  /* Send token to next site in queue */
+  if(next != -1)
+  {
+    send_token(next);
+    next = -1;
+  }
 }
 
 void NTDemonX::receive_request(sid_t source)
 {
-  // if this is the tail of the queue, add the requester behind it
+  /* Queue this requesting site up after self */
   if(is_requesting && next == -1)
     next = source;
 
-  // if this is the root of the tree, the requester becomes to new root
-  if(has_token && father == -1)
+  /* Send token to requesting site */
+  if(has_token)
   {
-    has_token = false;
-    send("token", source);
+    send_token(source);
     father = source;
   }
-  // otherwise ask the current root for the token on behalf of the requester
-  else
+
+  /* Request token from father */
+  else if(father != -1)
     send("request", father);
 }
 
@@ -94,12 +134,15 @@ void NTDemonX::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
+  father = -1;
 
   // perform critical section if the token was requested for the site itself
   if(is_requesting)
-  {
     critical_section();
-    liberation();
-    is_requesting = false;
-  }
+}
+
+void NTDemonX::send_token(sid_t destination)
+{
+  has_token = false;
+  send("token", destination);
 }

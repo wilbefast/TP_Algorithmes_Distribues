@@ -99,12 +99,16 @@ int Demon::register_id()
   // NB - all streams are closed automatically at the end of the block
 }
 
-int Demon::awaken()
+void Demon::awaken()
 {
   /* Generic wake-up call which does nothing special */
   printf("Demon %d woke up\n", id);
   state = NORMAL;
-  return EXIT_SUCCESS;
+}
+
+void Demon::idle()
+{
+  /* Generic idle method which does nothing at all */
 }
 
 Demon::~Demon()
@@ -162,6 +166,9 @@ void Demon::start()
   if(state != ASLEEP)
     WARN_RTN_VOID("Demon::start", "Not properly initialised");
 
+  /* Let other sites know that this one has joined the fray */
+  broadcast("new");
+
   /* Wake up method defined by specific algorithm */
   awaken();
 
@@ -181,6 +188,9 @@ int Demon::run()
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
+
+  /* Run idle method, depending on the specific algorithm */
+  idle();
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -214,7 +224,7 @@ void Demon::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  printf("Demon %d sent message '%s' to Demon %d\n", id, message, destination);
+  printf("Demon %d: 'I sent \"%s\" to Demon %d'\n", id, message, destination);
 }
 
 void Demon::broadcast(const char* message)
@@ -224,8 +234,10 @@ void Demon::broadcast(const char* message)
     send(message, (*i));
 }
 
-void Demon::receive(const char* message, sid_t source)
+bool Demon::receive(const char* message, sid_t source)
 {
+  printf("Demon %d: 'I received \"%s\" from Demon %d'\n", id, message, source);
+
   /* Standard utility protocols */
 
   // A new Demon is registring its existence
@@ -233,6 +245,10 @@ void Demon::receive(const char* message, sid_t source)
   {
     peers.push_back(source);
     printf("Demon %d: 'I added %d as a new peer'\n", id, source);
+    return true;  // consume event
   }
+
+  // Event has not been consumed
+  return false;
 }
 

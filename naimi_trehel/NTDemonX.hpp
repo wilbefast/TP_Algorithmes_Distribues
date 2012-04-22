@@ -20,8 +20,9 @@ public:
   NTDemonX();
 protected:
   // overrides
-  int awaken();
-  void receive(const char* message, sid_t source);
+  void awaken();
+  void idle();
+  bool receive(const char* message, sid_t source);
 private:
   // subroutines
   void supplication();
@@ -29,6 +30,7 @@ private:
   void liberation();
   void receive_request(sid_t source);
   void receive_token(sid_t source);
+  void send_token(sid_t destination);
 };
 
 #endif // NTDEMONX_HPP_INCLUDED
