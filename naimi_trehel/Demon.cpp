@@ -185,6 +185,18 @@ void Demon::start()
 
 int Demon::run()
 {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  /* Send ping */
+  send("bink", (id+1)%2);
+=======
+  /* Send ping to next peer */
+  if(peers.size() > 0)
+    send("bink", (id+1)%peers.size());
+>>>>>>> cfd14817be4383517119dec17fced749f5fe5733
+
+>>>>>>> ee42c3fbd9f6815028fde46487c8230417718216
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));

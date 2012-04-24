@@ -21,8 +21,16 @@ int main(int argc, char **argv)
   /* Create the Demon */
   NTDemonX demon;
 
+<<<<<<< HEAD
+  /* Create the Demon */
+  {
+    NTDemon demon(id);
+    demon.start();
+  }
+=======
   /* Launch the Demon */
   demon.start();
+>>>>>>> cfd14817be4383517119dec17fced749f5fe5733
 
   /* When the Demon finishes it's program, clean up */
 	SDLNet_Quit();
