@@ -28,12 +28,6 @@ protected:
     SHUTDOWN
   };
 
-<<<<<<< HEAD
-=======
-  /* CLASS VARIABLES */
-private:
-
->>>>>>> ee42c3fbd9f6815028fde46487c8230417718216
   /* ATTRIBUTES */
 private:
   // communication
@@ -73,20 +67,9 @@ protected:
   // main loop
   virtual void idle();
   // communication
-<<<<<<< HEAD
   void send(const char* message, sid_t destination);
   void broadcast(const char* message);
   virtual bool receive(const char* message, sid_t source);
-=======
-<<<<<<< HEAD
-  int send(const char* message, unsigned int destination);
-  virtual int receive(const char* message, unsigned int source);
-=======
-  void send(const char* message, id_t destination);
-  void broadcast(const char* message);
-  void receive(const char* message, id_t source);
->>>>>>> cfd14817be4383517119dec17fced749f5fe5733
->>>>>>> ee42c3fbd9f6815028fde46487c8230417718216
 };
 
 #endif // DEMON_HPP_INCLUDED
