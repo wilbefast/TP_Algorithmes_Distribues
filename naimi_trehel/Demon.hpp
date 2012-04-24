@@ -21,6 +21,9 @@ protected:
   {
     ASLEEP,
     NORMAL,
+    IDLE,
+    WORKING,
+    WAITING,
     ERROR,
     SHUTDOWN
   };

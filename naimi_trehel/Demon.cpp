@@ -167,17 +167,17 @@ void Demon::start()
     WARN_RTN_VOID("Demon::start", "Not properly initialised");
 
   /* Let other sites know that this one has joined the fray */
-  broadcast("new");
+  broadcast("hello");
 
   /* Wake up method defined by specific algorithm */
   awaken();
 
   /* Run until there's a problem */
-  while(state == NORMAL)
+  while(state != ERROR && state != SHUTDOWN)
   {
     // don't use 100% of the CPU !
     wait();
-    // break if there's an error
+    // break if there's an error or a request for shutdown
     if(run() != EXIT_SUCCESS)
       state = ERROR;
   }
@@ -241,7 +241,7 @@ bool Demon::receive(const char* message, sid_t source)
   /* Standard utility protocols */
 
   // A new Demon is registring its existence
-  if(!strcmp(message, "new"))
+  if(!strcmp(message, "hello"))
   {
     peers.push_back(source);
     printf("Demon %d: 'I added %d as a new peer'\n", id, source);

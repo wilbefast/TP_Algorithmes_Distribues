@@ -115,26 +115,21 @@ void NTDemonX::liberation()
 void NTDemonX::receive_request(sid_t source)
 {
   /* Queue this requesting site up after self */
-  if(is_requesting && next == -1)
+  if(father == -1)
     next = source;
 
-  /* Send token to requesting site */
-  if(has_token)
-  {
-    send_token(source);
-    father = source;
-  }
-
   /* Request token from father */
-  else if(father != -1)
+  else
     send("request", father);
+
+  /* The site requesting the token is now my new father */
+  father = source;
 }
 
 void NTDemonX::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
-  father = -1;
 
   // perform critical section if the token was requested for the site itself
   if(is_requesting)
