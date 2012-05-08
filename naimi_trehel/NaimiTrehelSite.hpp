@@ -21,7 +21,6 @@ public:
 protected:
   // overrides
   void awaken();
-  void idle();
   bool treat_input(char input);
   bool receive(const char* message, sid_t source);
 private:

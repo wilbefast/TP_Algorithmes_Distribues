@@ -38,13 +38,6 @@ void NaimiTrehelSite::awaken()
   }
 }
 
-void NaimiTrehelSite::idle()
-{
-  /* Draw a random number to determine whether to simulate critical section */
-  // if(!is_requesting && rand()%1000 <= CS_PERCENT_CHANCE)
-  //  supplication();
-}
-
 bool NaimiTrehelSite::treat_input(char input)
 {
   // call super-class's generic method - check if it consumes the event
