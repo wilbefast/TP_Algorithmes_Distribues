@@ -65,12 +65,12 @@ private:
   int shutdown();
   int unregister_id();
   // main loop
-  int run();
   void wait();
 protected:
   // creation, destruction
   virtual void awaken();
   // main loop
+  virtual int run();
   virtual bool treat_input(char input);
   // communication
   void send(const char* message, sid_t destination);
