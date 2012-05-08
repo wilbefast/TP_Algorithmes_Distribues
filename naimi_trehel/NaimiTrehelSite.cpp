@@ -133,7 +133,7 @@ void NaimiTrehelSite::supplication()
             // wait for the token to arrive
             while(!has_token)
             {
-                printf("Site %d: 'I am waiting for the token'\n", id);
+                printf("Site %d: 'I am waiting for the token %d'\n", id, has_token);
                 SDL_Delay(1000);
             }
         }
@@ -142,6 +142,9 @@ void NaimiTrehelSite::supplication()
 
         // free up critical section
         liberation();
+
+        // Get out from son's process
+        exit(0);
     }
   }
 }
@@ -184,16 +187,13 @@ void NaimiTrehelSite::receive_request(sid_t source)
   /* Request token from father */
   else if(father != -1)
   {
-    send("resquest", source);
+    send("request", source);
   }
   /* Send the token */
   else if(has_token)
   {
       send("token", source);
   }
-
-
-
 
   /* The site requesting the token is now my new father */
   father = source;
@@ -203,7 +203,7 @@ void NaimiTrehelSite::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
-
+    printf("token = %d\n", has_token);
   // perform critical section if the token was requested for the site itself
   if(is_requesting)
     critical_section();
