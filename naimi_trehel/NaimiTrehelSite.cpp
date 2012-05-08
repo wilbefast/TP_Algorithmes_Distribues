@@ -103,39 +103,43 @@ void NaimiTrehelSite::supplication()
   wait_process = fork();
   switch (wait_process)
   {
-    // If can't fork
+
+    // Fork failed
     case -1 :
-    {
-        perror("fork");
-        exit(EXIT_FAILURE); // Critical error -> Shutdown
-    }
-    // Son's processor
+      perror("fork");
+      exit(EXIT_FAILURE); // Critical error -> Shutdown
+    break;
+
+    // Child process
     case 0 :
-    {
-        printf("Site %d: 'I am requesting critical section now'\n", id);
+      printf("Site %d: 'I am requesting critical section now'\n", id);
 
-        // requesting on behalf of self, not a different site
-        is_requesting = true;
+      // requesting on behalf of self, not a different site
+      is_requesting = true;
 
-        // get the token from father, thus indirectly from the root
-        if(father != -1)
-        {
-            send("request",father);
-            father = -1;
+      // get the token from father, thus indirectly from the root
+      if(father != -1)
+      {
+          send("request",father);
+          father = -1;
 
-            // wait for the token to arrive
-            while(!has_token)
-            {
-                printf("Site %d: 'I am waiting for the token'\n", id);
-                SDL_Delay(1000);
-            }
-        }
-        // enter critical section
-        critical_section();
+          // wait for the token to arrive
+          while(!has_token)
+          {
+              printf("Site %d: 'I am waiting for the token'\n", id);
+              SDL_Delay(1000);
+          }
+      }
+      // enter critical section
+      critical_section();
 
-        // free up critical section
-        liberation();
-    }
+      // free up critical section
+      liberation();
+    break;
+
+    // Parent process
+    default:
+    break;
   }
 }
 
@@ -184,9 +188,6 @@ void NaimiTrehelSite::receive_request(sid_t source)
   {
       send("token", source);
   }
-
-
-
 
   /* The site requesting the token is now my new father */
   father = source;
