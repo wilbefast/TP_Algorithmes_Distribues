@@ -25,11 +25,11 @@ void NaimiTrehelSite::awaken()
     printf("Site %d: 'I have the token'\n", id);
   }
 
-  // Otherwise we need to let the other know of this new Site
+  // Otherwise we need to find out who does have the token
   else
   {
     father = peers.front();
-    printf("Site %d: 'Site %d has the token'\n", id, father);
+    printf("Site %d: 'Site %d is assumed to have the token'\n", id, father);
   }
 }
 
@@ -44,7 +44,17 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // standard utility protocols
   if(Site::receive(message, source))
-    ;
+  {
+    if(!strcmp("hello", message) && has_token)
+      send("i_have_token", source);
+  }
+
+  // received a message telling us who has the token
+  if(!strcmp("i_have_token", message))
+  {
+    father = source;
+    printf("Site %d: 'Site %d is known to have the token'\n", id, father);
+  }
 
   // received a request for the critical section
   else if(!strcmp("request", message))
