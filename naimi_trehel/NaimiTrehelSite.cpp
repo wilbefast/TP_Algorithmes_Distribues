@@ -8,10 +8,6 @@
 #define CS_MAX_DURATION 150
 #define CS_PERCENT_CHANCE 1
 
-#define FORK_FAILED -1
-#define FORK_CHILD 0
-#define FORK_PARENT 1
-
 using namespace std;
 
 NaimiTrehelSite::NaimiTrehelSite() :
@@ -97,7 +93,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // standard utility protocols
   if(Site::receive(message, source))
   {
-    if(has_token && !strcmp("hello", message))
+    if(has_token && STR_EQ("hello", message))
       send("i_have_token", source);
   }
 
