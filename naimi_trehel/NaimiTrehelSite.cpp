@@ -1,9 +1,13 @@
+#include <iostream>
+
 #include "NaimiTrehelSite.hpp"
 
 #include "wjd_math.hpp"
 
 #define CS_MAX_DURATION 5000
 #define CS_PERCENT_CHANCE 1
+
+using namespace std;
 
 NaimiTrehelSite::NaimiTrehelSite() :
 Site(),
@@ -36,8 +40,22 @@ void NaimiTrehelSite::awaken()
 void NaimiTrehelSite::idle()
 {
   /* Draw a random number to determine whether to simulate critical section */
-  if(!is_requesting && rand()%1000 <= CS_PERCENT_CHANCE)
-    supplication();
+  // if(!is_requesting && rand()%1000 <= CS_PERCENT_CHANCE)
+  //  supplication();
+}
+
+void NaimiTrehelSite::treat_input(char input)
+{
+  switch(input)
+  {
+    case 's':
+      if(!is_requesting)
+        supplication();
+    break;
+
+    default:
+      cout << "unrecognised input '" << input << "'!" << endl;
+  }
 }
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)

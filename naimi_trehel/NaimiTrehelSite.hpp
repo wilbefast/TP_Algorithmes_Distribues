@@ -22,6 +22,7 @@ protected:
   // overrides
   void awaken();
   void idle();
+  void treat_input(char input);
   bool receive(const char* message, sid_t source);
 private:
   // subroutines

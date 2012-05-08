@@ -25,12 +25,10 @@ int kbhit()
   tcsetattr( STDIN_FILENO, TCSANOW, &old_termios );
   fcntl( STDIN_FILENO, F_SETFL, oldf );
 
-  if( ch != EOF )
-  {
-    ungetc( ch, stdin );
+  // return a character if one has been entered (0 is returned if not)
+  if( ch == EOF )
     return 0;
-  }
-
-  return ch;
+  else
+    return ch;
 }
 

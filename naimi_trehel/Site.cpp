@@ -111,6 +111,11 @@ void Site::idle()
   /* Generic idle method which does nothing at all */
 }
 
+void Site::treat_input(char input)
+{
+  /* Generic input interpretation method which does nothing at all */
+}
+
 Site::~Site()
 {
   printf("Site %d destroyed\n", id);
@@ -172,13 +177,25 @@ void Site::start()
   /* Wake up method defined by specific algorithm */
   awaken();
 
-  /* Run until there's a problem */
+  /* Run until there's a problem or a manual shut-down */
   while(state != ERROR && state != SHUTDOWN)
   {
     // don't use 100% of the CPU !
     wait();
 
-    // break if there's a keyboard hit, an error or a request for shutdown
+    // check for key-presses
+    char input = kbhit();
+
+    // interpret key-presses
+    if(input)
+    {
+      if(input == 'q')
+        state = SHUTDOWN;
+      else
+        treat_input(input);
+    }
+
+    // stop if there's an error
     if(run() != EXIT_SUCCESS)
       state = ERROR;
   }
