@@ -19,6 +19,7 @@
 #define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
 
 #include <signal.h>
+#include <string>     // for parsing messages
 
 using namespace std;
 
@@ -30,6 +31,7 @@ packet(NULL),
 this_tick(0),
 next_tick(0),
 clock(0),
+wait_process(-1),
 id(0),
 peers(),
 state(ERROR)
@@ -115,7 +117,9 @@ void Site::idle()
 
 void Site::treat_input(char input)
 {
-  /* Generic input interpretation method which does nothing at all */
+  /* Generic interpret input method only deals with quit command */
+  if(input == 'q')
+      state = SHUTDOWN;
 }
 
 Site::~Site()
@@ -186,25 +190,16 @@ void Site::start()
     wait();
 
     // check for key-presses
-    char input = kbhit();
-
-    // interpret key-presses
-    if(input == 'q')
-    {
-        if (wait_process != -1)
-            kill (wait_process, SIGKILL);
-        state = SHUTDOWN;
-    }
-
-      // algorithm-specific controls
-    else
-        treat_input(input);
-    }
+    treat_input(kbhit());
 
     // stop if there's an error
     if(run() != EXIT_SUCCESS)
       state = ERROR;
   }
+
+  // destroy the waiting process
+  if (wait_process != -1)
+    kill (wait_process, SIGKILL);
 }
 
 int Site::run()
@@ -262,7 +257,10 @@ bool Site::receive(const char* message, sid_t source)
 {
   printf("Site %d: 'I received \"%s\" from Site %d'\n", id, message, source);
 
-  /* Standard utility protocols */
+  // Get the clock value
+  string s(message);
+
+  /// Standard utility protocols
 
   // A new Site is registring its existence
   if(!strcmp(message, "hello"))
