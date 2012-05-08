@@ -71,8 +71,7 @@ protected:
   // creation, destruction
   virtual void awaken();
   // main loop
-  virtual void idle();
-  virtual void treat_input(char input);
+  virtual bool treat_input(char input);
   // communication
   void send(const char* message, sid_t destination);
   void broadcast(const char* message);

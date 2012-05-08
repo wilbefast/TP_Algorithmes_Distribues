@@ -110,11 +110,6 @@ void Site::awaken()
   state = IDLE;
 }
 
-void Site::idle()
-{
-  /* Generic idle method which does nothing at all */
-}
-
 void Site::treat_input(char input)
 {
   /* Generic interpret input method only deals with quit command */

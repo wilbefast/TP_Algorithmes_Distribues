@@ -47,6 +47,10 @@ void NaimiTrehelSite::idle()
 
 void NaimiTrehelSite::treat_input(char input)
 {
+  // call super-class's generic method
+  Site::treat_input(input);
+
+  //
   switch(input)
   {
     case 's':
