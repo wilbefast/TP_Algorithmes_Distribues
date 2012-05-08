@@ -93,6 +93,7 @@ void NaimiTrehelSite::supplication()
     // wait for the token to arrive
     while(!has_token)
     {
+      /// FIXME -- we're not allowed to block here
       printf("Site %d: 'I am waiting for the token'\n", id);
       SDL_Delay(1000);
     }
