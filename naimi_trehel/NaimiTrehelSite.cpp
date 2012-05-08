@@ -5,7 +5,7 @@
 
 #include "wjd_math.hpp"
 
-#define CS_MAX_DURATION 5000
+#define CS_MAX_DURATION 150
 #define CS_PERCENT_CHANCE 1
 
 #define FORK_FAILED -1
@@ -58,7 +58,10 @@ void NaimiTrehelSite::run()
     case WORKING:
       // if in critical section, simulate a task via a timer
       if(cs_timer)
+      {
         cs_timer--;
+        printf("Site %d: 'liberating critical section in %d'\n", id, cs_timer);
+      }
       else
         liberation();
     break;
@@ -150,7 +153,7 @@ void NaimiTrehelSite::critical_section()
 
   // Simulate critical section by waiting for a short duration
   state = WORKING;
-  cs_timer = 1000; //rand() % CS_MAX_DURATION;
+  cs_timer = rand() % CS_MAX_DURATION;
 }
 
 void NaimiTrehelSite::liberation()
