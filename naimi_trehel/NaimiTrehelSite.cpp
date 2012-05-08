@@ -56,7 +56,9 @@ void NaimiTrehelSite::run()
       if(cs_timer)
       {
         cs_timer--;
-        printf("Site %d: 'liberating critical section in %d'\n", id, cs_timer);
+        if(!(cs_timer % MAX_FPS))
+          printf("Site %d: 'liberating critical section in %d second(s)'\n", id,
+                cs_timer/MAX_FPS);
       }
       else
         liberation();
@@ -170,11 +172,15 @@ void NaimiTrehelSite::liberation()
 
 void NaimiTrehelSite::receive_request(sid_t source)
 {
-  // Queue this requesting site up after self if in or awaiting critical section
+  // If requesting already and not already in the critical section
   if (state == REQUESTING || state == WORKING)
   {
+    // queue the sender behind us... unless someone else already called shotgun
     if (next == -1)
+    {
         next = source;
+        printf("Site %d: 'Site %d is now queued after me'\n", id, source);
+    }
   }
 
   // Request token from father
@@ -193,7 +199,6 @@ void NaimiTrehelSite::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
-    printf("token = %d\n", has_token);
 
   // perform critical section if the token was requested for the site itself
   if(state == REQUESTING)
