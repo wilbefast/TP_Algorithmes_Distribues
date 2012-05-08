@@ -8,6 +8,10 @@
 #define CS_MAX_DURATION 5000
 #define CS_PERCENT_CHANCE 1
 
+#define FORK_FAILED -1
+#define FORK_CHILD 0
+#define FORK_PARENT 1
+
 using namespace std;
 
 NaimiTrehelSite::NaimiTrehelSite() :
@@ -105,13 +109,13 @@ void NaimiTrehelSite::supplication()
   {
 
     // Fork failed
-    case -1 :
+    case FORK_FAILED:
       perror("fork");
       exit(EXIT_FAILURE); // Critical error -> Shutdown
     break;
 
     // Child process
-    case 0 :
+    case FORK_CHILD:
       printf("Site %d: 'I am requesting critical section now'\n", id);
 
       // requesting on behalf of self, not a different site
@@ -135,10 +139,15 @@ void NaimiTrehelSite::supplication()
 
       // free up critical section
       liberation();
+
+      // kill the child process
+      exit(EXIT_SUCCESS);
     break;
 
     // Parent process
+    case FORK_PARENT:
     default:
+      ;
     break;
   }
 }
