@@ -118,8 +118,16 @@ void Site::idle()
 void Site::treat_input(char input)
 {
   /* Generic interpret input method only deals with quit command */
-  if(input == 'q')
+
+  switch(input)
+  {
+    case 'q':
       state = SHUTDOWN;
+    break;
+
+    default:
+    break;
+  }
 }
 
 Site::~Site()
