@@ -30,7 +30,6 @@ packet(NULL),
 this_tick(0),
 next_tick(0),
 clock(0),
-wait_process(-1),
 id(0),
 peers(),
 state(ERROR)
@@ -122,7 +121,6 @@ void Site::treat_input(char input)
 Site::~Site()
 {
   printf("Site %d destroyed\n", id);
-  kill (wait_process, SIGKILL);
 
   /* Attempt to clean up the mess */
   WARN_IF(shutdown() != EXIT_SUCCESS, "Site::~Site",

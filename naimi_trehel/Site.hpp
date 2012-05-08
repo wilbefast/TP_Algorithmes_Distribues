@@ -39,10 +39,7 @@ private:
   // synchronisation
   int clock;
 
-
 protected:
-  // fork
-  pid_t wait_process;
   // identifiers
   sid_t id;
   sid_list_t peers;
