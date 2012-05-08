@@ -81,7 +81,7 @@ bool NaimiTrehelSite::treat_input(char input)
   switch(input)
   {
     case 's':
-      if(state != REQUESTING)
+      if(state != REQUESTING && state != WORKING)
         supplication();
         return true;
     break;
