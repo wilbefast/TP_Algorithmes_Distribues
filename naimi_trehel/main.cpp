@@ -7,6 +7,8 @@
 #include "SDL_assert.h"
 // Application
 #include "NaimiTrehelSite.hpp"
+#include <readline/readline.h>
+#include <readline/history.h>
 
 using namespace std;
 

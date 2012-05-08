@@ -61,11 +61,11 @@ void NaimiTrehelSite::treat_input(char input)
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // standard utility protocols
-  if(Site::receive(message, source))
-  {
+
+      printf("message recu!");
     if(!strcmp("hello", message) && has_token)
       send("i_have_token", source);
-  }
+
 
   // received a message telling us who has the token
   if(!strcmp("i_have_token", message))
@@ -115,13 +115,12 @@ void NaimiTrehelSite::supplication()
       printf("Site %d: 'I am waiting for the token'\n", id);
       SDL_Delay(1000);
     }
-
-    // enter critical section
-    critical_section();
-
-    // free up critical section
-    liberation();
   }
+  // enter critical section
+  critical_section();
+
+  // free up critical section
+  liberation();
 }
 
 void NaimiTrehelSite::critical_section()
@@ -129,13 +128,13 @@ void NaimiTrehelSite::critical_section()
   printf("Site %d: 'I am entering critical section now'\n", id);
 
   /* Simulate critical section by waiting for a short duration */
-  SDL_Delay(rand() % CS_MAX_DURATION);
+  SDL_Delay(1000); // this was : SDL_Delay(rand() % CS_MAX_DURATION);
 }
 
 void NaimiTrehelSite::liberation()
 {
   printf("Site %d: 'I am leaving critical section now'\n", id);
-
+printf("i'm out of CS");
   /* Critical section no longer required */
   is_requesting = false;
 
@@ -150,12 +149,24 @@ void NaimiTrehelSite::liberation()
 void NaimiTrehelSite::receive_request(sid_t source)
 {
   /* Queue this requesting site up after self */
-  if(father == -1)
-    next = source;
-
+  if (is_requesting)
+  {
+    if (next == -1)
+        next = source;
+  }
   /* Request token from father */
-  else
-    send("request", father);
+  if(father != -1)
+  {
+    send("resquest", source);
+  }
+  /* Send the token */
+  else if(has_token)
+  {
+      send("token", source);
+  }
+
+
+
 
   /* The site requesting the token is now my new father */
   father = source;
