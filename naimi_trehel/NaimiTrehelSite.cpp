@@ -8,6 +8,10 @@
 #define CS_MAX_DURATION 5000
 #define CS_PERCENT_CHANCE 1
 
+#define FORK_FAILED -1
+#define FORK_CHILD 0
+#define FORK_PARENT 1
+
 using namespace std;
 
 NaimiTrehelSite::NaimiTrehelSite() :
@@ -36,13 +40,6 @@ void NaimiTrehelSite::awaken()
     father = peers.front();
     printf("Site %d: 'Site %d is assumed to have the token'\n", id, father);
   }
-}
-
-void NaimiTrehelSite::idle()
-{
-  /* Draw a random number to determine whether to simulate critical section */
-  // if(!is_requesting && rand()%1000 <= CS_PERCENT_CHANCE)
-  //  supplication();
 }
 
 bool NaimiTrehelSite::treat_input(char input)
@@ -110,42 +107,48 @@ void NaimiTrehelSite::supplication()
   wait_process = fork();
   switch (wait_process)
   {
-    // If can't fork
-    case -1 :
-    {
-        perror("fork");
-        exit(EXIT_FAILURE); // Critical error -> Shutdown
-    }
-    // Son's processor
-    case 0 :
-    {
-        printf("Site %d: 'I am requesting critical section now'\n", id);
 
-        // requesting on behalf of self, not a different site
-        is_requesting = true;
+    // Fork failed
+    case FORK_FAILED:
+      perror("fork");
+      exit(EXIT_FAILURE); // Critical error -> Shutdown
+    break;
 
-        // get the token from father, thus indirectly from the root
-        if(father != -1)
-        {
-            send("request",father);
-            father = -1;
+    // Child process -- enter critical section, liberate and then die
+    case FORK_CHILD:
+      printf("Site %d: 'Child process requesting critical section now'\n", id);
 
-            // wait for the token to arrive
-            while(!has_token)
-            {
-                printf("Site %d: 'I am waiting for the token %d'\n", id, has_token);
-                SDL_Delay(1000);
-            }
-        }
-        // enter critical section
-        critical_section();
+      // requesting on behalf of self, not a different site
+      is_requesting = true;
 
-        // free up critical section
-        liberation();
+      // get the token from father, thus indirectly from the root
+      if(father != -1)
+      {
+          send("request",father);
+          father = -1;
 
-        // Get out from son's process
-        exit(0);
-    }
+          // wait for the token to arrive
+          while(!has_token)
+          {
+              printf("Site %d: 'Child process waiting for the token'\n", id);
+              SDL_Delay(1000);
+          }
+      }
+      // enter critical section
+      critical_section();
+
+      // free up critical section
+      liberation();
+
+      // kill the child process
+      exit(EXIT_SUCCESS);
+    break;
+
+    // Parent process -- return to other matters (replying to other sites)
+    case FORK_PARENT:
+    default:
+      //printf("Site %d: 'Parent process returning to other duties'\n", id);
+    break;
   }
 }
 
