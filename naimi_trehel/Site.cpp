@@ -28,6 +28,7 @@ socket(),
 packet(NULL),
 this_tick(0),
 next_tick(0),
+clock(0),
 id(0),
 peers(),
 state(ERROR)

@@ -38,6 +38,8 @@ private:
   int this_tick, next_tick;
   // synchronisation
   int clock;
+
+
 protected:
   // identifiers
   sid_t id;
