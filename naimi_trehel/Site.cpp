@@ -105,7 +105,7 @@ void Site::awaken()
 {
   /* Generic wake-up call which does nothing special */
   printf("Site %d woke up\n", id);
-  state = NORMAL;
+  state = IDLE;
 }
 
 void Site::idle()
@@ -192,8 +192,14 @@ void Site::start()
     // interpret key-presses
     if(input)
     {
+      // skip a line
+      cout << endl;
+
+      // ask site to shut down
       if(input == 'q')
         state = SHUTDOWN;
+
+      // algorithm-specific controls
       else
         treat_input(input);
     }
