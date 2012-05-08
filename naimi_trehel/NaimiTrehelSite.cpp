@@ -126,9 +126,8 @@ void NaimiTrehelSite::supplication()
             // wait for the token to arrive
             while(!has_token)
             {
-            /// FIXME -- we're not allowed to block here
-            printf("Site %d: 'I am waiting for the token'\n", id);
-            SDL_Delay(1000);
+                printf("Site %d: 'I am waiting for the token'\n", id);
+                SDL_Delay(1000);
             }
         }
         // enter critical section
@@ -176,7 +175,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
         next = source;
   }
   /* Request token from father */
-  if(father != -1)
+  else if(father != -1)
   {
     send("resquest", source);
   }
