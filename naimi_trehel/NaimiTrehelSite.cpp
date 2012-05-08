@@ -42,6 +42,14 @@ void NaimiTrehelSite::awaken()
   }
 }
 
+void NaimiTrehelSite::run()
+{
+  // call super-class's generic main loop method
+  Site::run();
+
+
+}
+
 bool NaimiTrehelSite::treat_input(char input)
 {
   // call super-class's generic method - check if it consumes the event

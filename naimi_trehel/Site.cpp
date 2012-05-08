@@ -204,9 +204,8 @@ void Site::start()
     // check for key-presses
     treat_input(kbhit());
 
-    // stop if there's an error
-    if(run() != EXIT_SUCCESS)
-      state = ERROR;
+    // perform standard Site logic (receive and reply to messages, etc)
+    run();
   }
 
   // destroy the waiting process
@@ -214,14 +213,11 @@ void Site::start()
     kill (wait_process, SIGKILL);
 }
 
-int Site::run()
+void Site::run()
 {
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
-
-  /* All clear ! */
-  return EXIT_SUCCESS;
 }
 
 // Regulate the number of frames per second, pausing only if need be

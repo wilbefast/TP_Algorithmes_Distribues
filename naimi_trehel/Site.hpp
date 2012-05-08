@@ -70,7 +70,7 @@ protected:
   // creation, destruction
   virtual void awaken();
   // main loop
-  virtual int run();
+  virtual void run();
   virtual bool treat_input(char input);
   // communication
   void send(const char* message, sid_t destination);
