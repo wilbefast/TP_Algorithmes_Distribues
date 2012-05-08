@@ -1,12 +1,11 @@
 // File streaming
 #include <iostream>
 #include <fstream>
-// For kbhit
-#include <conio.h>
 
 #include "Site.hpp"
 
 #include "SDL_assert.h"
+#include "kbhit.h"
 
 #define REGISTRY "registry.txt"
 
@@ -43,8 +42,7 @@ state(ERROR)
 int Site::init()
 {
   /* Read and write in the registry */
-  ASSERT(register_id() == EXIT_SUCCESS,
-      "Reading/editing registry");
+  ASSERT(register_id() == EXIT_SUCCESS, "Reading/editing registry");
 
 	/* Open a socket on the port corresponding to our identifier */
 	ASSERT_NET(socket = SDLNet_UDP_Open(BASE_PORT+id), "Opening UDP socket");
