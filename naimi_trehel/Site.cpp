@@ -19,6 +19,7 @@
 #define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
 
 #include <signal.h>
+#include <string>     // for parsing messages
 
 using namespace std;
 
@@ -109,14 +110,28 @@ void Site::awaken()
   state = IDLE;
 }
 
-void Site::idle()
+bool Site::treat_input(char input)
 {
-  /* Generic idle method which does nothing at all */
-}
+  /* Generic interpret input method only deals with quit command */
 
-void Site::treat_input(char input)
-{
-  /* Generic input interpretation method which does nothing at all */
+  // ignore all null inputs
+  if(!input)
+    return true;
+
+  // switch on remaining inputs
+  switch(input)
+  {
+    case 'q':
+      state = SHUTDOWN;
+      // event consumed
+      return true;
+    break;
+
+    default:
+      // event not consumed
+      return false;
+    break;
+  }
 }
 
 Site::~Site()
@@ -187,27 +202,14 @@ void Site::start()
     wait();
 
     // check for key-presses
-    char input = kbhit();
-
-    // interpret key-presses
-    if(input)
-    {
-      // skip a line
-      cout << endl;
-
-      // ask site to shut down
-      if(input == 'q')
-        state = SHUTDOWN;
-
-      // algorithm-specific controls
-      else
-        treat_input(input);
-    }
+    treat_input(kbhit());
 
     // stop if there's an error
     if(run() != EXIT_SUCCESS)
       state = ERROR;
   }
+
+  // destroy the waiting process
   if (wait_process != -1)
     kill (wait_process, SIGKILL);
 }
@@ -217,9 +219,6 @@ int Site::run()
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
-
-  /* Run idle method, depending on the specific algorithm */
-  idle();
 
   /* All clear ! */
   return EXIT_SUCCESS;
@@ -267,7 +266,10 @@ bool Site::receive(const char* message, sid_t source)
 {
   printf("Site %d: 'I received \"%s\" from Site %d'\n", id, message, source);
 
-  /* Standard utility protocols */
+  // Get the clock value
+  string s(message);
+
+  /// Standard utility protocols
 
   // A new Site is registring its existence
   if(!strcmp(message, "hello"))
