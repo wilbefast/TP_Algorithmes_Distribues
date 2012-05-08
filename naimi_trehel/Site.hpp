@@ -23,8 +23,8 @@ protected:
   {
     ASLEEP,
     IDLE,
+    REQUESTING,
     WORKING,
-    WAITING,
     ERROR,
     SHUTDOWN
   };

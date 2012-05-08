@@ -17,7 +17,6 @@ using namespace std;
 NaimiTrehelSite::NaimiTrehelSite() :
 Site(),
 has_token(false),
-is_requesting(false),
 cs_timer(0),
 father(-1),
 next(-1)
@@ -69,7 +68,7 @@ bool NaimiTrehelSite::treat_input(char input)
   switch(input)
   {
     case 's':
-      if(!is_requesting)
+      if(state != REQUESTING)
         supplication();
         return true;
     break;
@@ -136,7 +135,7 @@ void NaimiTrehelSite::supplication()
       printf("Site %d: 'Child process requesting critical section now'\n", id);
 
       // requesting on behalf of self, not a different site
-      is_requesting = true;
+      state = REQUESTING;
 
       // get the token from father, thus indirectly from the root
       if(father != -1)
@@ -173,12 +172,9 @@ void NaimiTrehelSite::critical_section()
 {
   printf("Site %d: 'I am entering critical section now'\n", id);
 
-  /* Currently in critical section */
+  // Simulate critical section by waiting for a short duration
   state = WORKING;
-
-  /* Simulate critical section by waiting for a short duration */
-  // SDL_Delay(rand() % CS_MAX_DURATION);
-  SDL_Delay(1000);
+  cs_timer = 1000; //rand() % CS_MAX_DURATION;
 }
 
 void NaimiTrehelSite::liberation()
@@ -186,7 +182,7 @@ void NaimiTrehelSite::liberation()
   printf("Site %d: 'I am leaving critical section now'\n", id);
 
   /* Critical section no longer required */
-  is_requesting = false;
+  state = IDLE;
 
   /* Send token to next site in queue */
   if(next != -1)
@@ -199,7 +195,7 @@ void NaimiTrehelSite::liberation()
 void NaimiTrehelSite::receive_request(sid_t source)
 {
   /* Queue this requesting site up after self */
-  if (is_requesting)
+  if (state == REQUESTING)
   {
     if (next == -1)
         next = source;
@@ -225,7 +221,7 @@ void NaimiTrehelSite::receive_token(sid_t source)
   has_token = true;
     printf("token = %d\n", has_token);
   // perform critical section if the token was requested for the site itself
-  if(is_requesting)
+  if(state == REQUESTING)
     critical_section();
 }
 
