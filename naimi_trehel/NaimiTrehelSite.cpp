@@ -99,25 +99,34 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 
 void NaimiTrehelSite::supplication()
 {
-  printf("Site %d: 'I am requesting critical section now'\n", id);
-
-  // requesting on behalf of self, not a different site
-  is_requesting = true;
-
-  // get the token from father, thus indirectly from the root
-  if(father != -1)
+  wait_process = fork();
+  if (wait_process == 0)
   {
-    send("request", father);
-    father = -1;
+      printf("Site %d: 'I am requesting critical section now'\n", id);
 
-    // wait for the token to arrive
-    state = WAITING;
+    // requesting on behalf of self, not a different site
+    is_requesting = true;
+
+    // get the token from father, thus indirectly from the root
+    if(father != -1)
+    {
+        send("request",father);
+        father = -1;
+
+        // wait for the token to arrive
+        while(!has_token)
+        {
+        /// FIXME -- we're not allowed to block here
+        printf("Site %d: 'I am waiting for the token'\n", id);
+        SDL_Delay(1000);
+        }
+    }
+    // enter critical section
+    critical_section();
+
+    // free up critical section
+    liberation();
   }
-  // enter critical section
-  critical_section();
-
-  // free up critical section
-  liberation();
 }
 
 void NaimiTrehelSite::critical_section()
@@ -137,7 +146,7 @@ void NaimiTrehelSite::liberation()
   printf("Site %d: 'I am leaving critical section now'\n", id);
 
   /* Critical section no longer required */
-  state = IDLE;
+  is_requesting = false;
 
   /* Send token to next site in queue */
   if(next != -1)
