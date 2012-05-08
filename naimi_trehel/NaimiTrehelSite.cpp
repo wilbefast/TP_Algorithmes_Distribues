@@ -61,14 +61,16 @@ void NaimiTrehelSite::treat_input(char input)
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // standard utility protocols
-
-      printf("message recu!");
-    if(!strcmp("hello", message) && has_token)
+  if(Site::receive(message, source))
+  {
+    if(has_token && !strcmp("hello", message))
       send("i_have_token", source);
+  }
 
+  /* received a message not consumed by Site::receive */
 
   // received a message telling us who has the token
-  if(!strcmp("i_have_token", message))
+  else if(!strcmp("i_have_token", message))
   {
     father = source;
     printf("Site %d: 'Site %d is known to have the token'\n", id, father);

@@ -189,8 +189,14 @@ void Site::start()
     // interpret key-presses
     if(input)
     {
+      // skip a line
+      cout << endl;
+
+      // ask site to shut down
       if(input == 'q')
         state = SHUTDOWN;
+
+      // algorithm-specific controls
       else
         treat_input(input);
     }
