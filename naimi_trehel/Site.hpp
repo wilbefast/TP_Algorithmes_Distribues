@@ -22,7 +22,6 @@ protected:
   enum State
   {
     ASLEEP,
-    NORMAL,
     IDLE,
     WORKING,
     WAITING,
@@ -35,8 +34,10 @@ private:
   // communication
   UDPsocket socket;
   UDPpacket* packet;
-  // timing
+  // local timing
   int this_tick, next_tick;
+  // synchronisation
+  int clock;
 protected:
   // identifiers
   sid_t id;

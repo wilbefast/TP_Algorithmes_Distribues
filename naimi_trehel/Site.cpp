@@ -9,7 +9,7 @@
 
 #define REGISTRY "registry.txt"
 
-#define BASE_PORT 49154
+#define BASE_PORT 49152
 #define LOCALHOST_HEX 0x10007f
 #define BASE_PORT_HEX 0xc0
 #define PORT_SPACING_HEX 0x100
@@ -103,7 +103,7 @@ void Site::awaken()
 {
   /* Generic wake-up call which does nothing special */
   printf("Site %d woke up\n", id);
-  state = NORMAL;
+  state = IDLE;
 }
 
 void Site::idle()
