@@ -45,21 +45,24 @@ void NaimiTrehelSite::idle()
   //  supplication();
 }
 
-void NaimiTrehelSite::treat_input(char input)
+bool NaimiTrehelSite::treat_input(char input)
 {
-  // call super-class's generic method
-  Site::treat_input(input);
+  // call super-class's generic method - check if it consumes the event
+  if(Site::treat_input(input))
+    return true;
 
-  //
+  // if not check sub-class specific commands
   switch(input)
   {
     case 's':
       if(!is_requesting)
         supplication();
+        return true;
     break;
 
     default:
       cout << "unrecognised input '" << input << "'!" << endl;
+      return false;
   }
 }
 

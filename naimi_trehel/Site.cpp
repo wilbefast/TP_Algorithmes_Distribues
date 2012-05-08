@@ -110,17 +110,26 @@ void Site::awaken()
   state = IDLE;
 }
 
-void Site::treat_input(char input)
+bool Site::treat_input(char input)
 {
   /* Generic interpret input method only deals with quit command */
 
+  // ignore all null inputs
+  if(!input)
+    return true;
+
+  // switch on remaining inputs
   switch(input)
   {
     case 'q':
       state = SHUTDOWN;
+      // event consumed
+      return true;
     break;
 
     default:
+      // event not consumed
+      return false;
     break;
   }
 }
@@ -210,9 +219,6 @@ int Site::run()
   /* Check inbox */
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
-
-  /* Run idle method, depending on the specific algorithm */
-  idle();
 
   /* All clear ! */
   return EXIT_SUCCESS;
