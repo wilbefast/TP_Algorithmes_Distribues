@@ -5,7 +5,7 @@
 #include "Site.hpp"
 
 #include "SDL_assert.h"
-#include "kbhit.h"
+#include "kbhit.hpp"
 
 #define REGISTRY "registry.txt"
 
@@ -177,8 +177,9 @@ void Site::start()
   {
     // don't use 100% of the CPU !
     wait();
+
     // break if there's a keyboard hit, an error or a request for shutdown
-    if(kbhit() || run() != EXIT_SUCCESS)
+    if(run() != EXIT_SUCCESS)
       state = ERROR;
   }
 }

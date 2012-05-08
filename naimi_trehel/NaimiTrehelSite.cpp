@@ -84,15 +84,24 @@ void NaimiTrehelSite::supplication()
   // requesting on behalf of self, not a different site
   is_requesting = true;
 
-  // if we already have the token we
-  if(has_token)
-    critical_section();
-
   // get the token from father, thus indirectly from the root
-  else if(father != -1)
+  if(father != -1)
   {
     send("request",father);
     father = -1;
+
+    // wait for the token to arrive
+    while(!has_token)
+    {
+      printf("Site %d: 'I am waiting for the token'\n", id);
+      SDL_Delay(1000);
+    }
+
+    // enter critical section
+    critical_section();
+
+    // free up critical section
+    liberation();
   }
 }
 
@@ -102,9 +111,6 @@ void NaimiTrehelSite::critical_section()
 
   /* Simulate critical section by waiting for a short duration */
   SDL_Delay(rand() % CS_MAX_DURATION);
-
-  /* Liberate at the end of critical section */
-  liberation();
 }
 
 void NaimiTrehelSite::liberation()

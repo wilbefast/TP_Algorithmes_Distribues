@@ -1,3 +1,5 @@
+#include "kbhit.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,10 +28,9 @@ int kbhit()
   if( ch != EOF )
   {
     ungetc( ch, stdin );
-    // input detected
-    return 1;
+    return 0;
   }
 
-  // no input detected
-  return 0;
+  return ch;
 }
+
