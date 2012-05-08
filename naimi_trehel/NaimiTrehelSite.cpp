@@ -76,6 +76,7 @@ bool NaimiTrehelSite::treat_input(char input)
   // if not check sub-class specific commands
   switch(input)
   {
+    // SUPPLICATION
     case 's':
       if(state != REQUESTING && state != WORKING)
         supplication();
@@ -169,24 +170,22 @@ void NaimiTrehelSite::liberation()
 
 void NaimiTrehelSite::receive_request(sid_t source)
 {
-  /* Queue this requesting site up after self */
-  if (state == REQUESTING)
+  // Queue this requesting site up after self if in or awaiting critical section
+  if (state == REQUESTING || state == WORKING)
   {
     if (next == -1)
         next = source;
   }
-  /* Request token from father */
-  else if(father != -1)
-  {
-    send("request", source);
-  }
-  /* Send the token */
-  else if(has_token)
-  {
-      send("token", source);
-  }
 
-  /* The site requesting the token is now my new father */
+  // Request token from father
+  else if(father != -1)
+    send("request", father);
+
+  // Send the token
+  else if(has_token)
+    send("token", source);
+
+  // The site requesting the token is now my new father
   father = source;
 }
 
@@ -195,6 +194,7 @@ void NaimiTrehelSite::receive_token(sid_t source)
   // this site is now the root of the tree
   has_token = true;
     printf("token = %d\n", has_token);
+
   // perform critical section if the token was requested for the site itself
   if(state == REQUESTING)
     critical_section();
