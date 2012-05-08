@@ -189,17 +189,15 @@ void Site::start()
     char input = kbhit();
 
     // interpret key-presses
-    if(input)
+    if(input == 'q')
     {
-      // skip a line
-      cout << endl;
-
-      // ask site to shut down
-      if(input == 'q')
+        if (wait_process != -1)
+            kill (wait_process, SIGKILL);
         state = SHUTDOWN;
+    }
 
       // algorithm-specific controls
-      else
+    else
         treat_input(input);
     }
 

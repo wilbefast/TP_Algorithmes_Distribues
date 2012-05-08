@@ -10,9 +10,6 @@
 
 using namespace std;
 
-// Site is at the top level for that all threads can access it
-NaimiTrehelSite site;
-
 int main(int argc, char **argv)
 {
   // Initialize SDL (needed for timing)
@@ -20,6 +17,9 @@ int main(int argc, char **argv)
 
 	// Initialize SDL_net
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
+
+  // Create the Site
+	NaimiTrehelSite site;
 
   // Launch the Site
   site.start();
