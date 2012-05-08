@@ -61,14 +61,14 @@ void NaimiTrehelSite::treat_input(char input)
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // standard utility protocols
-
-      printf("message recu!");
+  if(Site::receive(message, source))
+  {
     if(!strcmp("hello", message) && has_token)
       send("i_have_token", source);
-
+  }
 
   // received a message telling us who has the token
-  if(!strcmp("i_have_token", message))
+  else if(!strcmp("i_have_token", message))
   {
     father = source;
     printf("Site %d: 'Site %d is known to have the token'\n", id, father);
@@ -88,7 +88,6 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
     printf("Site %d: 'Unknown message \"%s\" from %d'\n", id, message, source);
     return false;
   }
-
   // event was consumed
   return true;
 }
@@ -97,30 +96,34 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 
 void NaimiTrehelSite::supplication()
 {
-  printf("Site %d: 'I am requesting critical section now'\n", id);
-
-  // requesting on behalf of self, not a different site
-  is_requesting = true;
-
-  // get the token from father, thus indirectly from the root
-  if(father != -1)
+  wait_process = fork();
+  if (wait_process == 0)
   {
-    send("request",father);
-    father = -1;
+      printf("Site %d: 'I am requesting critical section now'\n", id);
 
-    // wait for the token to arrive
-    while(!has_token)
+    // requesting on behalf of self, not a different site
+    is_requesting = true;
+
+    // get the token from father, thus indirectly from the root
+    if(father != -1)
     {
-      /// FIXME -- we're not allowed to block here
-      printf("Site %d: 'I am waiting for the token'\n", id);
-      SDL_Delay(1000);
-    }
-  }
-  // enter critical section
-  critical_section();
+        send("request",father);
+        father = -1;
 
-  // free up critical section
-  liberation();
+        // wait for the token to arrive
+        while(!has_token)
+        {
+        /// FIXME -- we're not allowed to block here
+        printf("Site %d: 'I am waiting for the token'\n", id);
+        SDL_Delay(1000);
+        }
+    }
+    // enter critical section
+    critical_section();
+
+    // free up critical section
+    liberation();
+  }
 }
 
 void NaimiTrehelSite::critical_section()

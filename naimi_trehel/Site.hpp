@@ -38,6 +38,8 @@ private:
   // timing
   int this_tick, next_tick;
 protected:
+  // fork
+  pid_t wait_process;
   // identifiers
   sid_t id;
   sid_list_t peers;
