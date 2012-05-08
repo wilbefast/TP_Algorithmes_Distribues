@@ -114,9 +114,9 @@ void NaimiTrehelSite::supplication()
       exit(EXIT_FAILURE); // Critical error -> Shutdown
     break;
 
-    // Child process
+    // Child process -- enter critical section, liberate and then die
     case FORK_CHILD:
-      printf("Site %d: 'I am requesting critical section now'\n", id);
+      printf("Site %d: 'Child process requesting critical section now'\n", id);
 
       // requesting on behalf of self, not a different site
       is_requesting = true;
@@ -130,7 +130,7 @@ void NaimiTrehelSite::supplication()
           // wait for the token to arrive
           while(!has_token)
           {
-              printf("Site %d: 'I am waiting for the token'\n", id);
+              printf("Site %d: 'Child process waiting for the token'\n", id);
               SDL_Delay(1000);
           }
       }
@@ -144,10 +144,10 @@ void NaimiTrehelSite::supplication()
       exit(EXIT_SUCCESS);
     break;
 
-    // Parent process
+    // Parent process -- return to other matters (replying to other sites)
     case FORK_PARENT:
     default:
-      ;
+      printf("Site %d: 'Parent process returning to other duties'\n", id);
     break;
   }
 }
