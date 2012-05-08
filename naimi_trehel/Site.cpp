@@ -117,11 +117,15 @@ bool Site::treat_input(char input)
   // ignore all null inputs
   if(!input)
     return true;
+  else
+    // skip a line
+    cout << endl;
 
   // switch on remaining inputs
   switch(input)
   {
     case 'q':
+      cout << "**QUIT**" << endl;
       state = SHUTDOWN;
       // event consumed
       return true;
@@ -185,37 +189,31 @@ int Site::unregister_id()
 
 void Site::start()
 {
-  /* Make sure them site has been correctly initialised */
+  // Make sure them site has been correctly initialised
   if(state != ASLEEP)
     WARN_RTN_VOID("Site::start", "Not properly initialised");
 
-  /* Let other sites know that this one has joined the fray */
+  // Let other sites know that this one has joined the fray
   broadcast("hello");
 
-  /* Wake up method defined by specific algorithm */
+  // Wake up method defined by specific algorithm
   awaken();
 
-  /* Run until there's a problem or a manual shut-down */
+  // Run until there's a problem or a manual shut-down
   while(state != ERROR && state != SHUTDOWN)
-  {
-    // don't use 100% of the CPU !
-    wait();
-
-    // check for key-presses
-    treat_input(kbhit());
-
-    // perform standard Site logic (receive and reply to messages, etc)
+    // Run method should be partially masked by specific algorithm
     run();
-  }
-
-  // destroy the waiting process
-  if (wait_process != -1)
-    kill (wait_process, SIGKILL);
 }
 
 void Site::run()
 {
-  /* Check inbox */
+  // Don't use 100% of the CPU !
+  wait();
+
+  // Check for key-presses
+  treat_input(kbhit());
+
+  // Check inbox
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
 }

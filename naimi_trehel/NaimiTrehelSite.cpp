@@ -80,6 +80,7 @@ bool NaimiTrehelSite::treat_input(char input)
   {
     // SUPPLICATION
     case 's':
+      cout << "**SUPPLICATION**" << endl;
       if(state != REQUESTING && state != WORKING)
         supplication();
         return true;
