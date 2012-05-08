@@ -177,7 +177,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
   /* Request token from father */
   else if(father != -1)
   {
-    send("resquest", source);
+    send("request", source);
   }
   /* Send the token */
   else if(has_token)
