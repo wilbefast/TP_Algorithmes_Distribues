@@ -6,7 +6,7 @@
 #include "SDL/SDL_net.h"
 #include "SDL_assert.h"
 // Application
-#include "NTDemonX.hpp"
+#include "NaimiTrehelSite.hpp"
 
 using namespace std;
 
@@ -18,13 +18,13 @@ int main(int argc, char **argv)
 	/* Initialize SDL_net */
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
-  /* Create the Demon */
-  NTDemonX demon;
+  /* Create the Site */
+  NaimiTrehelSite site;
 
-  /* Launch the Demon */
-  demon.start();
+  /* Launch the Site */
+  site.start();
 
-  /* When the Demon finishes it's program, clean up */
+  /* When the Site finishes it's program, clean up */
 	SDLNet_Quit();
 
   /* All clear ! */
