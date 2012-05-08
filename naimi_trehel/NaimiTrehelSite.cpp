@@ -47,14 +47,24 @@ void NaimiTrehelSite::run()
   // call super-class's generic main loop method
   Site::run();
 
-  // critical section ends when its timer runs out
-  if(cs_timer)
-    cs_timer--;
-  else if(state == WORKING)
+  switch(state)
   {
-    // free the critical section when (simulated) task is finished
-    state = IDLE;
-    liberation();
+    case REQUESTING:
+      // if requesting critical section, wait for token to arrive
+      if(has_token)
+        critical_section();
+    break;
+
+    case WORKING:
+      // if in critical section, simulate a task via a timer
+      if(cs_timer)
+        cs_timer--;
+      else
+        liberation();
+    break;
+
+    default:
+    break;
   }
 }
 
@@ -120,52 +130,18 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 
 void NaimiTrehelSite::supplication()
 {
-  wait_process = fork();
-  switch (wait_process)
+  // requesting on behalf of self, not a different site
+  state = REQUESTING;
+
+  // get the token from father, thus indirectly from the root
+  if(father != -1)
   {
-
-    // Fork failed
-    case FORK_FAILED:
-      perror("fork");
-      exit(EXIT_FAILURE); // Critical error -> Shutdown
-    break;
-
-    // Child process -- enter critical section, liberate and then die
-    case FORK_CHILD:
-      printf("Site %d: 'Child process requesting critical section now'\n", id);
-
-      // requesting on behalf of self, not a different site
-      state = REQUESTING;
-
-      // get the token from father, thus indirectly from the root
-      if(father != -1)
-      {
-          send("request",father);
-          father = -1;
-
-          // wait for the token to arrive
-          while(!has_token)
-          {
-              printf("Site %d: 'Child process waiting for the token'\n", id);
-              SDL_Delay(1000);
-          }
-      }
-      // enter critical section
-      critical_section();
-
-      // free up critical section
-      liberation();
-
-      // kill the child process
-      exit(EXIT_SUCCESS);
-    break;
-
-    // Parent process -- return to other matters (replying to other sites)
-    case FORK_PARENT:
-    default:
-      //printf("Site %d: 'Parent process returning to other duties'\n", id);
-    break;
+    send("request",father);
+    father = -1;
   }
+
+  // state is now REQUESTING : we'll enter the critical section when the token
+  // arrives (see NaimiTrehelSite::run).
 }
 
 void NaimiTrehelSite::critical_section()
