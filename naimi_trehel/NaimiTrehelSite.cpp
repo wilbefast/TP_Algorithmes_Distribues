@@ -18,6 +18,7 @@ NaimiTrehelSite::NaimiTrehelSite() :
 Site(),
 has_token(false),
 is_requesting(false),
+cs_timer(0),
 father(-1),
 next(-1)
 {
@@ -47,7 +48,15 @@ void NaimiTrehelSite::run()
   // call super-class's generic main loop method
   Site::run();
 
-
+  // critical section ends when its timer runs out
+  if(cs_timer)
+    cs_timer--;
+  else if(state == WORKING)
+  {
+    // free the critical section when (simulated) task is finished
+    state = IDLE;
+    liberation();
+  }
 }
 
 bool NaimiTrehelSite::treat_input(char input)
