@@ -45,8 +45,7 @@ void SafeNaimiTrehelSite::run()
   {
     fault = PRED_FAULTY;
     predecessors.pop_back();
-    send("are_you_alive", predecessors.back());
-    reply_timer = TIMEOUT;
+    check_timer = 0;
   }
 }
 
@@ -127,6 +126,16 @@ void SafeNaimiTrehelSite::print_info()
   for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
     cout << (*i) << " ";
   cout << "]" << endl;
+
+  // timers
+  cout << "check_timer = " << check_timer << endl;
+  cout << "reply_timer = " << reply_timer << endl;
+
+  // position in the distributed queue
+  cout << "queue_position = " << queue_position << endl;
+
+  // state of fault-repair we're currently in
+  cout << "fault = " << fault << endl;
 }
 
 
