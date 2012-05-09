@@ -150,7 +150,6 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // request forwarded on from another site
   else if(s_message.find("forward_req_of:") != string::npos)
   {
-    cout << s_message.substr(s_message.find(':')+1) << endl;
     sid_t origin = atoi(s_message.substr(s_message.find(':')+1).c_str());
     receive_request(origin);
   }
@@ -231,7 +230,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // Send the token
   else if(has_token)
-    send("token", source);
+    send_token(source);
 
   // The site requesting the token is now my new father
   father = source;
