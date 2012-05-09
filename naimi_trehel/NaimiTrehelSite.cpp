@@ -102,7 +102,7 @@ bool NaimiTrehelSite::treat_input(char input)
     case KEY_TIME:
       cout << "TIMER" << endl;
       cs_timer += CS_TIME_INCREMENT;
-      logger->write("liberation timer set to %ds", cs_timer/MAX_FPS);
+      logger->write("liberation timer set to %d second(s)", cs_timer/MAX_FPS);
       return true;
 
     // LIBERATION
