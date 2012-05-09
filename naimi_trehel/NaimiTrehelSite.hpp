@@ -10,7 +10,7 @@ class NaimiTrehelSite : public Site
   /* ATTRIBUTES */
 private:
   bool has_token;
-  unsigned int cs_timer;
+  int cs_timer;
 protected:
   sid_t father;
   sid_t next;

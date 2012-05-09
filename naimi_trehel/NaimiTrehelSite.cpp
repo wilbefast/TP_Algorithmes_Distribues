@@ -12,7 +12,7 @@ using namespace std;
 NaimiTrehelSite::NaimiTrehelSite() :
 Site(),
 has_token(false),
-cs_timer(0),
+cs_timer(-1),
 father(-1),
 next(-1)
 {
@@ -52,14 +52,14 @@ void NaimiTrehelSite::run()
 
     case WORKING:
       // if in critical section, simulate a task via a timer
-      if(cs_timer)
+      if(cs_timer > 0)
       {
         cs_timer--;
         if(!(cs_timer % MAX_FPS))
           logger->write("liberating critical section in %d second(s)",
                       cs_timer/MAX_FPS);
       }
-      else
+      else if (cs_timer == 0)
         liberation();
     break;
 
@@ -80,17 +80,24 @@ bool NaimiTrehelSite::treat_input(char input)
     // SUPPLICATION
     case 's':
       cout << "SUPPLICATION" << endl;
-      if(state != REQUESTING && state != WORKING)
-      {
-        supplication();
-        return true;
-      }
+      if(state == REQUESTING)
+        logger->write("already supplicating");
+      else if(state == WORKING)
+        logger->write("can't supplicate while in critical section");
       else
-      {
-        logger->write("can't supplicate at the moment");
-        return false;
-      }
-    break;
+        supplication();
+      // consume event
+      return true;
+
+    // LIBERATION
+    case 'l':
+      cout << "LIBERATION" << endl;
+      if(state == WORKING)
+        liberation();
+      else
+        logger->write("can't liberate while not in critical section");
+      // consume event
+      return true;
 
     default:
       cout << "UNRECOGNISED input '" << input << "'!" << endl;
@@ -211,7 +218,7 @@ void NaimiTrehelSite::critical_section()
 
   // Simulate critical section by waiting for a short duration
   state = WORKING;
-  cs_timer = rand() % CS_MAX_DURATION;
+  //cs_timer = rand() % CS_MAX_DURATION;
 }
 
 void NaimiTrehelSite::liberation()
@@ -220,6 +227,7 @@ void NaimiTrehelSite::liberation()
 
   /* Critical section no longer required */
   state = IDLE;
+  cs_timer = -1;
 
   /* Send token to next site in queue */
   if(next != -1)
