@@ -26,14 +26,15 @@ void NaimiTrehelSite::awaken()
   if(peers.size() == 0)
   {
     has_token = true;
-    printf("Site %d: 'I have the token'\n", id);
+    printf("%ld -- Site %d: 'I have the token'\n", time(NULL), id);
   }
 
   // Otherwise we need to find out who does have the token
   else
   {
     father = peers.front();
-    printf("Site %d: 'Site %d is assumed to have the token'\n", id, father);
+    printf("%ld -- Site %d: 'Site %d is assumed to have the token'\n",
+          time(NULL), id, father);
   }
 }
 
@@ -56,8 +57,8 @@ void NaimiTrehelSite::run()
       {
         cs_timer--;
         if(!(cs_timer % MAX_FPS))
-          printf("Site %d: 'liberating critical section in %d second(s)'\n", id,
-                cs_timer/MAX_FPS);
+          printf("%ld -- Site %d: 'liberating critical section in %d second(s)'\n",
+                time(NULL), id, cs_timer/MAX_FPS);
       }
       else
         liberation();
@@ -134,7 +135,8 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   else if(!s_message.compare("i_have_token"))
   {
     father = source;
-    printf("Site %d: 'Site %d is known to have the token'\n", id, father);
+    printf("%ld -- Site %d: 'Site %d is known to have the token'\n", time(NULL),
+          id, father);
   }
 
   // received a request for the critical section
@@ -148,15 +150,16 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // request forwarded on from another site
   else if(s_message.find("forward_req_of:") != string::npos)
   {
-    sid_t origin = atoi(s_message.substr(s_message.find(':')).c_str());
+    cout << s_message.substr(s_message.find(':')+1) << endl;
+    sid_t origin = atoi(s_message.substr(s_message.find(':')+1).c_str());
     receive_request(origin);
   }
 
   // default !
   else
   {
-
-    printf("Site %d: 'Unknown message \"%s\" from %d'\n", id, message, source);
+    printf("%ld -- Site %d: 'Unknown message \"%s\" from %d'\n", time(NULL), id,
+          message, source);
     return false;
   }
 
@@ -184,7 +187,8 @@ void NaimiTrehelSite::supplication()
 
 void NaimiTrehelSite::critical_section()
 {
-  printf("Site %d: 'I am entering critical section now'\n", id);
+  printf("%ld -- Site %d: 'I am entering critical section now'\n", time(NULL),
+          id);
 
   // Simulate critical section by waiting for a short duration
   state = WORKING;
@@ -193,7 +197,8 @@ void NaimiTrehelSite::critical_section()
 
 void NaimiTrehelSite::liberation()
 {
-  printf("Site %d: 'I am leaving critical section now'\n", id);
+  printf("%ld -- Site %d: 'I am leaving critical section now'\n", time(NULL),
+        id);
 
   /* Critical section no longer required */
   state = IDLE;
@@ -215,7 +220,8 @@ void NaimiTrehelSite::receive_request(sid_t source)
     if (next == -1)
     {
         next = source;
-        printf("Site %d: 'Site %d is now queued after me'\n", id, source);
+        printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
+              id, source);
     }
   }
 

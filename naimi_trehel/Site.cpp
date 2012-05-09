@@ -266,7 +266,8 @@ void Site::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  printf("Site %d: 'I sent \"%s\" to Site %d'\n", id, message, destination);
+  printf("%ld -- Site %d: 'I sent \"%s\" to Site %d'\n", time(NULL),
+        id, message, destination);
 }
 
 void Site::send_number(const char* header, int number, sid_t destination)
@@ -288,7 +289,8 @@ void Site::broadcast(const char* message)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  printf("Site %d: 'I received \"%s\" from Site %d'\n", id, message, source);
+  printf("%ld -- Site %d: 'I received \"%s\" from Site %d'\n", time(NULL),
+      id, message, source);
 
   // Get the clock value
   string s(message);
@@ -299,7 +301,8 @@ bool Site::receive(const char* message, sid_t source)
   if(!strcmp(message, "hello"))
   {
     peers.push_back(source);
-    printf("Site %d: 'I added %d as a new peer'\n", id, source);
+    printf("%ld -- Site %d: 'I added %d as a new peer'\n", time(NULL),
+          id, source);
     return true;  // consume event
   }
 
