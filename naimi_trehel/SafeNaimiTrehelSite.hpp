@@ -9,12 +9,22 @@ class SafeNaimiTrehelSite : public NaimiTrehelSite
 {
   /* CONSTANTS */
 private:
-  static const int CHECK_INTERVAL = MAX_FPS; // once per second
+  static const int TIMEOUT = MAX_FPS; // maximum latency = 1 second
+
+  /* NESTING */
+private:
+  enum Fault
+  {
+    NONE_DETECTED,
+    PRED_FAULTY
+  };
 
   /* ATTRIBUTES */
 private:
   sid_list_t predecessors;
-  unsigned int check_timer;
+  int check_timer;
+  int reply_timer;
+  Fault fault;
 
   /* METHODS */
 public:

@@ -27,6 +27,7 @@ protected:
     IDLE,
     REQUESTING,
     WORKING,
+    FAULT_RECOVERY,
     ERROR,
     SHUTDOWN
   };

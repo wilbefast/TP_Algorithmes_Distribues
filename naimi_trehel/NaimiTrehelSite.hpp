@@ -11,6 +11,7 @@ class NaimiTrehelSite : public Site
 private:
   bool has_token;
   unsigned int cs_timer;
+protected:
   sid_t father;
   sid_t next;
 

@@ -4,7 +4,7 @@
 
 #include "wjd_math.hpp"
 
-#define CS_MAX_DURATION 150
+#define CS_MAX_DURATION 10*MAX_FPS
 #define CS_PERCENT_CHANCE 1
 
 using namespace std;

@@ -10,7 +10,8 @@ using namespace std;
 
 SafeNaimiTrehelSite::SafeNaimiTrehelSite() :
 NaimiTrehelSite(),
-predecessors()
+predecessors(),
+fault(NONE_DETECTED)
 {
 }
 
@@ -22,18 +23,27 @@ void SafeNaimiTrehelSite::run()
   NaimiTrehelSite::run();
 
   // perform additional checks to survive other Sites' crashing
-  switch(state)
+  if(state == REQUESTING)
   {
-    case REQUESTING:
-      if(check_timer)
-        check_timer--;
-      else
-        // remember - front is token-holder, back is predecessor
-        send("are_you_alive", predecessors.back());
-    break;
+    // check predecessor at regular intervals
+    if(check_timer > 0)
+      check_timer--;
+    else if (check_timer == 0)
+    {
+      send("are_you_alive", predecessors.back());
+      reply_timer = TIMEOUT;
+    }
+  }
 
-    default:
-    break;
+  // wait for predecessor's reply
+  if(reply_timer > 0)
+    reply_timer--;
+  else if (reply_timer == 0)
+  {
+    fault = PRED_FAULTY;
+    predecessors.pop_back();
+    send("are_you_alive", predecessors.back());
+    reply_timer = TIMEOUT;
   }
 }
 
@@ -48,15 +58,30 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // create a string object for easier manipulation
   string s_message(message);
 
+  // check for 'are you alive?' message
+  if(!s_message.compare("are_you_alive"))
+  {
+    send("i_am_alive", source);
+    if(source != next)
+      source = next;
+  }
+
+  else if(!s_message.compare("i_am_alive"))
+  {
+    // check again shortly
+    check_timer = TIMEOUT;
+    reply_timer = -1;
+  }
+
   // check for commit message (confirmation that we are queued up)
-  if(s_message.find("predecessors:") != string::npos)
+  else if(s_message.find("predecessors:") != string::npos)
   {
     // the first id is that of the token-holder
     add_predecessors(s_message.substr(s_message.find(':')+1));
     // the last id is the predecessor of the source of the message
     predecessors.push_back(source);
     // start checking the predecessor at regular intervals
-    check_timer = CHECK_INTERVAL;
+    check_timer = TIMEOUT;
   }
 
   // default !
