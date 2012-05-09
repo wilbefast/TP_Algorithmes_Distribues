@@ -23,6 +23,7 @@ protected:
   void awaken();
   void run();
   bool treat_input(char input);
+  void print_info();
   bool receive(const char* message, sid_t source);
 private:
   // subroutines

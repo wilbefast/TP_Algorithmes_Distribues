@@ -31,7 +31,6 @@ packet(NULL),
 this_tick(0),
 next_tick(0),
 clock(0),
-wait_process(-1),
 id(0),
 peers(),
 state(ERROR)
@@ -108,34 +107,6 @@ void Site::awaken()
   /* Generic wake-up call which does nothing special */
   printf("Site %d woke up\n", id);
   state = IDLE;
-}
-
-bool Site::treat_input(char input)
-{
-  /* Generic interpret input method only deals with quit command */
-
-  // ignore all null inputs
-  if(!input)
-    return true;
-  else
-    // skip a line
-    cout << endl;
-
-  // switch on remaining inputs
-  switch(input)
-  {
-    case 'q':
-      cout << "**QUIT**" << endl;
-      state = SHUTDOWN;
-      // event consumed
-      return true;
-    break;
-
-    default:
-      // event not consumed
-      return false;
-    break;
-  }
 }
 
 Site::~Site()
@@ -230,6 +201,54 @@ void Site::wait()
 
   // Calculate when the next update should be
 	next_tick = this_tick + (1000/MAX_FPS);
+}
+
+bool Site::treat_input(char input)
+{
+  /* Generic interpret input method only deals with quit command */
+
+  // ignore all null inputs
+  if(!input)
+    return true;
+  else
+    cout << " -> ";
+
+  // switch on remaining inputs
+  switch(input)
+  {
+    case 'q':
+      cout << "QUIT" << endl;
+      state = SHUTDOWN;
+      // event consumed
+      return true;
+    break;
+
+    case 'i':
+      cout << "INFORMATION" << endl;
+      print_info();
+      // event consumed
+      return true;
+
+    default:
+      // event not consumed
+      return false;
+    break;
+  }
+}
+
+void Site::print_info()
+{
+  // Site identifier
+  cout << "id = " << id << endl;
+
+  // Site peers
+  cout << "peers = [ ";
+  for(sid_list_it i = peers.begin(); i != peers.end(); i++)
+    cout << (*i) << " ";
+  cout << "]" << endl;
+
+  // Site state
+  cout << "state = " << state << endl;
 }
 
 

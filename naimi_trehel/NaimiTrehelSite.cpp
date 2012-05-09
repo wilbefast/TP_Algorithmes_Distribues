@@ -80,16 +80,22 @@ bool NaimiTrehelSite::treat_input(char input)
   {
     // SUPPLICATION
     case 's':
-      cout << "**SUPPLICATION**" << endl;
+      cout << "SUPPLICATION" << endl;
       if(state != REQUESTING && state != WORKING)
         supplication();
         return true;
     break;
 
     default:
-      cout << "unrecognised input '" << input << "'!" << endl;
+      cout << "UNRECOGNISED input '" << input << "'!" << endl;
       return false;
   }
+}
+
+void NaimiTrehelSite::print_info()
+{
+  // print generic Site information
+  Site::print_info();
 }
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)

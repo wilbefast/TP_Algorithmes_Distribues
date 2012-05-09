@@ -40,8 +40,6 @@ private:
   int clock;
 
 protected:
-  // fork
-  pid_t wait_process;
   // identifiers
   sid_t id;
   sid_list_t peers;
@@ -71,7 +69,9 @@ protected:
   virtual void awaken();
   // main loop
   virtual void run();
+  // user interface
   virtual bool treat_input(char input);
+  virtual void print_info();
   // communication
   void send(const char* message, sid_t destination);
   void broadcast(const char* message);
