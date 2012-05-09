@@ -8,8 +8,6 @@
 #define MAX_DEMONS 1000
 #define MAX_FPS 30
 
-#define STR_EQ(x, y) !strcmp(x, y)
-
 // NB - 'id_t' is already defined by POSIX as an *unsigned* integer
 typedef int sid_t;  // 'signed identifier type'
 typedef std::list<sid_t> sid_list_t;
@@ -74,6 +72,7 @@ protected:
   virtual void print_info();
   // communication
   void send(const char* message, sid_t destination);
+  void send_number(const char* header, int number, sid_t destination);
   void broadcast(const char* message);
   virtual bool receive(const char* message, sid_t source);
 };

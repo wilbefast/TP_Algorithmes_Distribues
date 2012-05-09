@@ -1,7 +1,7 @@
 // Standard libraries
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <iostream>
 // SDL
 #include "SDL/SDL_net.h"
 #include "SDL_assert.h"

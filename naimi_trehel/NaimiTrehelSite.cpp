@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 
 #include "NaimiTrehelSite.hpp"
 
@@ -119,33 +118,41 @@ void NaimiTrehelSite::print_info()
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
+  // create a string object for easier manipulation
+  string s_message(message);
+
   // standard utility protocols
   if(Site::receive(message, source))
   {
-    if(has_token && STR_EQ("hello", message))
+    if(has_token && !s_message.compare("hello"))
       send("i_have_token", source);
   }
 
   /* received a message not consumed by Site::receive */
 
   // received a message telling us who has the token
-  else if(!strcmp("i_have_token", message))
+  else if(!s_message.compare("i_have_token"))
   {
     father = source;
     printf("Site %d: 'Site %d is known to have the token'\n", id, father);
   }
 
   // received a request for the critical section
-  else if(!strcmp("request", message))
+  else if(!s_message.compare("request"))
     receive_request(source);
 
   // received the token
-  else if(!strcmp("token", message))
+  else if(!s_message.compare("token"))
     receive_token(source);
+
+  // request forwarded on from another site
+  else if(s_message.find("forward_req_of_") != string::npos)
+    ;
 
   // default !
   else
   {
+
     printf("Site %d: 'Unknown message \"%s\" from %d'\n", id, message, source);
     return false;
   }
@@ -211,12 +218,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // Request token from father
   if(father != -1)
-  {
-    string temp("forward_request(");
-    stringstream oss;
-    oss << temp << source << ")";
-    send(oss.str().c_str(), father);
-  }
+    send_number("forward_req_of_", source, father);
 
   // Send the token
   else if(has_token)

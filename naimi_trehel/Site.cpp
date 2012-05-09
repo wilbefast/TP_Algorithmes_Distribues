@@ -1,6 +1,7 @@
 // File streaming
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "Site.hpp"
 
@@ -266,6 +267,16 @@ void Site::send(const char* message, sid_t destination)
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
   printf("Site %d: 'I sent \"%s\" to Site %d'\n", id, message, destination);
+}
+
+void Site::send_number(const char* header, int number, sid_t destination)
+{
+  // concatenate header and number
+  string temp(header);
+  stringstream oss;
+  oss << temp << number;
+  // send the combination to the requested destination
+  send(oss.str().c_str(), destination);
 }
 
 void Site::broadcast(const char* message)
