@@ -84,6 +84,7 @@ protected:
   void send(const char* message, sid_t destination);
   void send_number(const char* header, int number, sid_t destination);
   void broadcast(const char* message);
+  void broadcast_number(const char* header, int number);
   virtual bool receive(const char* message, sid_t source);
   // overridden communcation
   virtual void receive_hello(sid_t source);

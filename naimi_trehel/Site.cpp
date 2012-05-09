@@ -317,6 +317,13 @@ void Site::broadcast(const char* message)
     send(message, (*i));
 }
 
+void Site::broadcast_number(const char* header, int number)
+{
+  /* Send message to each peer */
+  for(sid_list_it i = peers.begin(); i != peers.end(); i++)
+    send_number(header, number, (*i));
+}
+
 bool Site::receive(const char* message, sid_t source)
 {
   logger->write("received \"%s\" from Site %d", message, source);
