@@ -2,6 +2,7 @@
 #define SITE_HPP_INCLUDED
 
 #include <list>
+#include <string>
 
 #include "SDL/SDL_net.h"
 
@@ -10,12 +11,16 @@ class Site;
 #include "SiteLogger.hpp"
 
 #define MAX_SITES 1000
-#define MAX_FPS 30
+#define MAX_HERTZ 30
+#define MAX_MSG_ARGS 20
 
 // NB - 'id_t' is already defined by POSIX as an *unsigned* integer
 typedef int sid_t;  // 'signed identifier type'
 typedef std::list<sid_t> sid_list_t;
 typedef sid_list_t::iterator sid_list_it;
+
+typedef std::list<int> data_list_t;
+typedef data_list_t::iterator data_list_it;
 
 class Site
 {
@@ -39,11 +44,9 @@ private:
   UDPpacket* packet;
   // local timing
   int this_tick, next_tick;
-  // synchronisation
-  //int clock;
-  /// is this needed ?
-
 protected:
+  // communication
+  data_list_t message_data;
   // identifiers
   sid_t id;
   sid_list_t peers;
@@ -72,6 +75,8 @@ private:
   int unregister_id();
   // main loop
   void wait();
+  // communication
+  void parse_data(std::string s);
 protected:
   // creation, destruction
   virtual void awaken();

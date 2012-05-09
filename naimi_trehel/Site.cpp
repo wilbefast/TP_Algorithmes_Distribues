@@ -34,8 +34,7 @@ socket(),
 packet(NULL),
 this_tick(0),
 next_tick(0),
-// clock(0),
-/// is this needed ?
+message_data(),
 id(0),
 peers(),
 state(ERROR),
@@ -224,7 +223,21 @@ void Site::wait()
 		SDL_Delay(next_tick - this_tick);
 
   // Calculate when the next update should be
-	next_tick = this_tick + (1000/MAX_FPS);
+	next_tick = this_tick + (1000/MAX_HERTZ);
+}
+
+void Site::parse_data(string s)
+{
+  // recursion base case
+  if(s.length() < 1)
+    return;
+
+  // add the next predecessor
+  size_t comma = s.find(',');
+  message_data.push_back(atoi(s.substr(0, comma).c_str()));
+
+  // recursive call for string processing, LISP style !
+  parse_data(s.substr(comma+1));
 }
 
 /* QUERY */
@@ -307,7 +320,7 @@ void Site::send_data(const char* header, sid_t destination, int argc,
   stringstream builder;
   {
     string temp(header);
-    builder << temp;
+    builder << temp << ':';
   }
 
   // concatenate all number to the end of the header
@@ -355,14 +368,19 @@ bool Site::receive(const char* message, sid_t source)
 {
   logger->write("received \"%s\" from Site %d", message, source);
 
-  // Get the clock value
-  string s(message);
+  // Create a string object for easy manipulation
+  string s_message(message);
 
-  /// Standard utility protocols
+  // Parse any arguments which may be contained in the message
+  message_data.clear();
+  size_t colon = s_message.find(':');
+  if(colon != string::npos)
+    parse_data(s_message.substr(colon+1));
 
-  // A new Site is registring its existence
-  if(!strcmp(message, HELLO))
+  // Site registration
+  if(!s_message.compare(HELLO))
   {
+    // call specific code of algorithm this Site uses
     receive_hello(source);
     return true;  // consume event
   }

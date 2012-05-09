@@ -4,13 +4,13 @@
 
 #include "wjd_math.hpp"
 
-#define CS_TIME_INCREMENT 5*MAX_FPS
+#define CS_TIME_INCREMENT 5*MAX_HERTZ
 #define CS_PERCENT_CHANCE 1
 
 #define TOKEN "token"
 #define I_HAVE_TOKEN "i_have_token"
 #define REQUEST "request"
-#define FORWARD_REQUEST_OF "forward_request_of:"
+#define FORWARD_REQUEST_OF "forward_request_of"
 
 #define KEY_LIBERATE 'l'
 #define KEY_SUPPLICATE 's'
@@ -64,9 +64,9 @@ void NaimiTrehelSite::run()
       if(cs_timer > 0)
       {
         cs_timer--;
-        if(!(cs_timer % MAX_FPS))
+        if(!(cs_timer % MAX_HERTZ))
           logger->write("liberating critical section in %d second(s)",
-                      cs_timer/MAX_FPS);
+                      cs_timer/MAX_HERTZ);
       }
       else if (cs_timer == 0)
         liberation();
@@ -102,7 +102,7 @@ bool NaimiTrehelSite::treat_input(char input)
     case KEY_TIME:
       cout << "TIMER" << endl;
       cs_timer += CS_TIME_INCREMENT;
-      logger->write("liberation timer set to %d second(s)", cs_timer/MAX_FPS);
+      logger->write("liberation timer set to %d second(s)", cs_timer/MAX_HERTZ);
       return true;
 
     // LIBERATION
@@ -155,7 +155,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // request forwarded on from another site
   else if(s_message.find(FORWARD_REQUEST_OF) != string::npos)
   {
-    sid_t origin = atoi(s_message.substr(s_message.find(':')+1).c_str());
+    sid_t origin = message_data.front();
 
     // keep forwarding on the message until it reaches the root of the tree
     if(father == -1)

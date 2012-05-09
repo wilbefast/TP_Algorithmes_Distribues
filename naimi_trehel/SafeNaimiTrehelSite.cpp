@@ -8,7 +8,7 @@
 #define ARE_YOU_BEFORE "are_you_before:"
 #define ARE_YOU_ALIVE "are_you_alive"
 #define I_AM_ALIVE "i_am_alive"
-#define PREDECESSORS "predecessors:"
+#define PREDECESSORS "predecessors"
 
 using namespace std;
 
@@ -99,7 +99,8 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   else if(s_message.find(PREDECESSORS) != string::npos)
   {
     // the first id is that of the token-holder
-    add_predecessors(s_message.substr(s_message.find(':')+1));
+    for(data_list_it i = message_data.begin(); i != message_data.end(); i++)
+      predecessors.push_back((*i));
     // the last id is the predecessor of the source of the message
     predecessors.push_back(source);
     queue_position = predecessors.size();
@@ -159,19 +160,4 @@ void SafeNaimiTrehelSite::print_info()
 
   // state of fault-repair we're currently in
   cout << "fault = " << fault << endl;
-}
-
-
-void SafeNaimiTrehelSite::add_predecessors(string s)
-{
-  // recursion base case
-  if(s.length() < 1)
-    return;
-
-  // add the next predecessor
-  size_t comma = s.find(',');
-  predecessors.push_back(atoi(s.substr(0, comma).c_str()));
-
-  // recursive call for string processing, LISP style !
-  add_predecessors(s.substr(comma+1));
 }
