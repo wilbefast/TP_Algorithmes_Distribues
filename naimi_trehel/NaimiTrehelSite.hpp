@@ -23,8 +23,10 @@ protected:
   void awaken();
   void run();
   bool treat_input(char input);
-  void print_info();
-  bool receive(const char* message, sid_t source);
+  // overriden
+  virtual bool receive(const char* message, sid_t source);
+  virtual void queue(sid_t _next);
+  virtual void print_info();
 private:
   // subroutines
   void supplication();
@@ -33,7 +35,6 @@ private:
   void receive_request(sid_t source);
   void receive_token(sid_t source);
   void send_token(sid_t destination);
-  void queue(sid_t _next);
 };
 
 #endif // NAIMITREHELDEMON_HPP_INCLUDED

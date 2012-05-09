@@ -99,37 +99,19 @@ bool NaimiTrehelSite::treat_input(char input)
   }
 }
 
-void NaimiTrehelSite::print_info()
-{
-  // print generic Site information
-  Site::print_info();
-
-  // Does this site have the token ?
-  cout << "has_token = " << has_token << endl;
-
-  // Critical section timer
-  cout << "cs_timer = " << cs_timer << endl;
-
-  // Father (in the tree)
-  cout << "father = " << father << endl;
-
-  // Next (in the queue)
-  cout << "next = " << next << endl;
-}
+/* OVERRIDDEN */
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // create a string object for easier manipulation
   string s_message(message);
 
-  // standard utility protocols
+  // check if message is consumed by parent method
   if(Site::receive(message, source))
   {
     if(has_token && !s_message.compare("hello"))
       send("i_have_token", source);
   }
-
-  /* received a message not consumed by Site::receive */
 
   // received a message telling us who has the token
   else if(!s_message.compare("i_have_token"))
@@ -170,6 +152,32 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // event was consumed
   return true;
 }
+
+void NaimiTrehelSite::queue(sid_t _next)
+{
+  next = _next;
+  printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
+        id, _next);
+}
+
+void NaimiTrehelSite::print_info()
+{
+  // print generic Site information
+  Site::print_info();
+
+  // Does this site have the token ?
+  cout << "has_token = " << has_token << endl;
+
+  // Critical section timer
+  cout << "cs_timer = " << cs_timer << endl;
+
+  // Father (in the tree)
+  cout << "father = " << father << endl;
+
+  // Next (in the queue)
+  cout << "next = " << next << endl;
+}
+
 
 /* SUBROUTINES */
 
@@ -251,11 +259,4 @@ void NaimiTrehelSite::send_token(sid_t destination)
 {
   has_token = false;
   send("token", destination);
-}
-
-void NaimiTrehelSite::queue(sid_t _next)
-{
-  next = _next;
-  printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
-        id, _next);
 }

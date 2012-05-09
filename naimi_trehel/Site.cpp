@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>     // for parsing messages
 
 #include "Site.hpp"
 
@@ -18,9 +19,6 @@
 
 #define ID2PORT(id) BASE_PORT_HEX+id*PORT_SPACING_HEX
 #define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
-
-#include <signal.h>
-#include <string>     // for parsing messages
 
 using namespace std;
 
