@@ -22,6 +22,7 @@ public:
 
 protected:
   // overrides
+  void run();
   bool receive(const char* message, sid_t source);
   void queue(sid_t _next);
   void print_info();

@@ -16,6 +16,27 @@ predecessors()
 
 /* OVERRIDES */
 
+void SafeNaimiTrehelSite::run()
+{
+  // typical run cycle of the Naimi Trehel algorithm
+  NaimiTrehelSite::run();
+
+  // perform additional checks to survive other Sites' crashing
+  switch(state)
+  {
+    case REQUESTING:
+      if(check_timer)
+        check_timer--;
+      else
+        // remember - front is token-holder, back is predecessor
+        send("are_you_alive", predecessors.back());
+    break;
+
+    default:
+    break;
+  }
+}
+
 bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 {
   // check if message is consumed by parent method

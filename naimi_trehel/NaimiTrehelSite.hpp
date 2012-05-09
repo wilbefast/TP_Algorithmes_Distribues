@@ -34,7 +34,6 @@ private:
   void critical_section();
   void liberation();
   void receive_request(sid_t source);
-  void receive_token(sid_t source);
   void send_token(sid_t destination);
 };
 

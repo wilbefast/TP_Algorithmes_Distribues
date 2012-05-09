@@ -125,7 +125,9 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 
   // received the token
   else if(!s_message.compare("token"))
-    receive_token(source);
+    // the presence of the token will be detected in the main 'run' loop and
+    // so if requesting the site will enter the critical section
+    has_token = true;
 
   // request forwarded on from another site
   else if(s_message.find("forward_req_of:") != string::npos)
@@ -247,16 +249,6 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // The site requesting the token is now my new father
   father = source;
-}
-
-void NaimiTrehelSite::receive_token(sid_t source)
-{
-  // this site is now the root of the tree
-  has_token = true;
-
-  // perform critical section if the token was requested for the site itself
-  if(state == REQUESTING)
-    critical_section();
 }
 
 void NaimiTrehelSite::send_token(sid_t destination)
