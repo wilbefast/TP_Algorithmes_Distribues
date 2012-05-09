@@ -102,18 +102,18 @@ bool NaimiTrehelSite::treat_input(char input)
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
-  // create a string object for easier manipulation
-  string s_message(message);
 
   // check if message is consumed by parent method
   if(Site::receive(message, source))
-  {
-    if(has_token && !s_message.compare("hello"))
-      send("i_have_token", source);
-  }
+    return true;
+
+  // otherwise ...
+
+  // create a string object for easier manipulation
+  string s_message(message);
 
   // received a message telling us who has the token
-  else if(!s_message.compare("i_have_token"))
+  if(!s_message.compare("i_have_token"))
   {
     father = source;
     logger->write("Site %d is known to have the token", father);
@@ -148,6 +148,16 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 
   // event was consumed
   return true;
+}
+
+void NaimiTrehelSite::receive_hello(sid_t source)
+{
+  // add this new Site to the list of known peers
+  Site::receive_hello(source);
+
+  // also let the new Site known if this Site has the token
+  if(has_token)
+    send("i_have_token", source);
 }
 
 void NaimiTrehelSite::queue(sid_t _next)

@@ -84,6 +84,8 @@ protected:
   void send_number(const char* header, int number, sid_t destination);
   void broadcast(const char* message);
   virtual bool receive(const char* message, sid_t source);
+  // overridden communcation
+  virtual void receive_hello(sid_t source);
 };
 
 #endif // SITE_HPP_INCLUDED

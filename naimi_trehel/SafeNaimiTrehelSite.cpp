@@ -18,15 +18,17 @@ predecessors()
 
 bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 {
+  // check if message is consumed by parent method
+  if(NaimiTrehelSite::receive(message, source))
+    return true;
+
+  // otherwise ...
+
   // create a string object for easier manipulation
   string s_message(message);
 
-  // check if message is consumed by parent method
-  if(NaimiTrehelSite::receive(message, source))
-    ;
-
   // check for commit message (confirmation that we are queued up)
-  else if(s_message.find("predecessors:") != string::npos)
+  if(s_message.find("predecessors:") != string::npos)
   {
     add_predecessors(s_message.substr(s_message.find(':')+1));
     predecessors.push_back(source);

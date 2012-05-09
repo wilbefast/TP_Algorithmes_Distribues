@@ -318,8 +318,7 @@ bool Site::receive(const char* message, sid_t source)
   // A new Site is registring its existence
   if(!strcmp(message, "hello"))
   {
-    peers.push_back(source);
-    logger->write("added %d as a new peer", source);
+    receive_hello(source);
     return true;  // consume event
   }
 
@@ -327,3 +326,9 @@ bool Site::receive(const char* message, sid_t source)
   return false;
 }
 
+void Site::receive_hello(sid_t source)
+{
+  // add this new Site to the list of known peers
+  peers.push_back(source);
+  logger->write("added %d as a new peer", source);
+}

@@ -25,6 +25,7 @@ protected:
   bool treat_input(char input);
   // overriden
   virtual bool receive(const char* message, sid_t source);
+  void receive_hello(sid_t source);
   virtual void queue(sid_t _next);
   virtual void print_info();
 private:

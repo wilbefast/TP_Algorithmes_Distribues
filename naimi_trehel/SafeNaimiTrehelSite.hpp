@@ -21,6 +21,7 @@ protected:
   void queue(sid_t _next);
   void print_info();
 
+
 private:
   // subroutines
   void add_predecessors(std::string s);
