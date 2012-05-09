@@ -228,6 +228,11 @@ bool Site::treat_input(char input)
       // event consumed
       return true;
 
+    case 'c':
+      cout << string(30, '\n');
+      // event consumed
+      return true;
+
     default:
       // event not consumed
       return false;
