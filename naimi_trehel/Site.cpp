@@ -190,11 +190,22 @@ void Site::run()
   wait();
 
   // Check for key-presses
-  treat_input(kbhit());
+  char input = kbhit();
+  // verify that the keyboard event was indeed consumed
+  if(!treat_input(input))
+    // report error if it remained unrecognised
+    cout << "UNRECOGNISED input '" << input << "'!" << endl;
 
   // Check inbox
   if (SDLNet_UDP_Recv(socket, packet))
-    receive((char*)packet->data, PORT2ID(packet->address.port));
+  {
+    const char* message = (char*)packet->data;
+    sid_t source = PORT2ID(packet->address.port);
+    // verify that the communicate event was indeed consumed
+    if(!receive(message, source))
+      // report error if it remained unrecognised
+      logger->write("Unknown message \"%s\" from %d", message, source);
+  }
 }
 
 // Regulate the number of frames per second, pausing only if need be

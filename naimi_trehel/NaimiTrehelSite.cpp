@@ -100,7 +100,7 @@ bool NaimiTrehelSite::treat_input(char input)
       return true;
 
     default:
-      cout << "UNRECOGNISED input '" << input << "'!" << endl;
+      // don't consume event
       return false;
   }
 }
@@ -151,7 +151,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // default !
   else
   {
-    //logger->write("Unknown message \"%s\" from %d", message, source);
+    // don't consume event
     return false;
   }
 
