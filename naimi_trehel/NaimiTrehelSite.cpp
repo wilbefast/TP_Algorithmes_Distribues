@@ -1,5 +1,8 @@
 #include <iostream>
 #include <errno.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <signal.h>
 
 #include "NaimiTrehelSite.hpp"
 
@@ -101,55 +104,73 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 }
 
 /* SUBROUTINES */
-
+static bool *mem_has_token;
 void NaimiTrehelSite::supplication()
 {
-  wait_process = fork();
-  switch (wait_process)
+  // requesting on behalf of self, not a different site
+  is_requesting = true;
+
+  // Allocate a shared memory segment for each desired shared variable and save the id
+  int memid_has_token = shmget(IPC_PRIVATE, 100, 0700 | IPC_CREAT);
+  if (memid_has_token == -1)
   {
+      perror("shmget");
+      exit (EXIT_FAILURE);
+  }
 
-    // Fork failed
-    case FORK_FAILED:
-      perror("fork");
-      exit(EXIT_FAILURE); // Critical error -> Shutdown
-    break;
+  /* mounting memory segments */
+  mem_has_token = (bool*)shmat(memid_has_token, NULL, 0);
 
-    // Child process -- enter critical section, liberate and then die
-    case FORK_CHILD:
-      printf("Site %d: 'Child process requesting critical section now'\n", id);
+  /* affecting the right values to the right variables */
+  mem_has_token[0] = has_token;
 
-      // requesting on behalf of self, not a different site
-      is_requesting = true;
-
-      // get the token from father, thus indirectly from the root
+  printf("Site %d: 'Requesting critical section now'\n", id);
+  // get the token from father, thus indirectly from the root
       if(father != -1)
       {
           send("request",father);
           father = -1;
 
           // wait for the token to arrive
-          while(!has_token)
+          wait_process = fork();
+          switch (wait_process)
           {
-              printf("Site %d: 'Child process waiting for the token'\n", id);
-              SDL_Delay(1000);
+            // Fork failed
+            case FORK_FAILED:
+                perror("fork");
+                exit(EXIT_FAILURE); // Critical error -> Shutdown
+            break;
+
+            // Child process -- enter critical section, liberate and then die
+            case FORK_CHILD:
+                while(!mem_has_token[0])
+                {
+                    printf("Site %d: 'Child process waiting for the token'\n", id);
+                    SDL_Delay(1000);
+                }
+                // kill the child process
+                exit(EXIT_SUCCESS);
+            break;
+            // Parent process -- return to other matters (replying to other sites)
+            case FORK_PARENT:
+            default:
+            //printf("Site %d: 'Parent process returning to other duties'\n", id);
+            break;
           }
+          // enter critical section
+          critical_section();
+
+          // free up critical section
+          liberation();
       }
-      // enter critical section
-      critical_section();
+      else
+      {
+        // enter critical section
+        critical_section();
 
-      // free up critical section
-      liberation();
-
-      // kill the child process
-      exit(EXIT_SUCCESS);
-    break;
-
-    // Parent process -- return to other matters (replying to other sites)
-    case FORK_PARENT:
-    default:
-      //printf("Site %d: 'Parent process returning to other duties'\n", id);
-    break;
-  }
+        // free up critical section
+        liberation();
+      }
 }
 
 void NaimiTrehelSite::critical_section()
@@ -170,6 +191,13 @@ void NaimiTrehelSite::liberation()
 
   /* Critical section no longer required */
   is_requesting = false;
+
+  // Destroys the son process, in case he's still alive >>:)
+  if (wait_process != -1)
+  {
+    kill (wait_process, SIGKILL);
+    wait_process = -1;
+  }
 
   /* Send token to next site in queue */
   if(next != -1)
@@ -206,10 +234,7 @@ void NaimiTrehelSite::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
-    printf("token = %d\n", has_token);
-  // perform critical section if the token was requested for the site itself
-  if(is_requesting)
-    critical_section();
+  mem_has_token[0] = 1;
 }
 
 void NaimiTrehelSite::send_token(sid_t destination)
