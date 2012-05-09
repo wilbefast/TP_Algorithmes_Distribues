@@ -39,7 +39,8 @@ private:
   // local timing
   int this_tick, next_tick;
   // synchronisation
-  int clock;
+  //int clock;
+  /// is this needed ?
 
 protected:
   // identifiers

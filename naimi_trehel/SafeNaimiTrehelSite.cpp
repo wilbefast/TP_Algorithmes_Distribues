@@ -28,15 +28,14 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // check for commit message (confirmation that we are queued up)
   else if(s_message.find("predecessors:") != string::npos)
   {
-    logger->write("BINK BINK \"%s\" from %d'\n", time(NULL), id,
-          message, source);
+    add_predecessors(s_message.substr(s_message.find(':')+1));
+    predecessors.push_back(source);
   }
 
   // default !
   else
   {
-    logger->write("Unknown message \"%s\" from %d'\n", time(NULL), id,
-          message, source);
+    logger->write("Unknown message \"%s\" from %d'\n", message, source);
     return false;
   }
 
@@ -48,8 +47,6 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
 {
   // standard operations
   NaimiTrehelSite::queue(_next);
-
-  cout << "HELLO!" << endl;
 
   // build a message composed of the list of predecessors
   string temp("predecessors:");
@@ -72,4 +69,19 @@ void SafeNaimiTrehelSite::print_info()
   for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
     cout << (*i) << " ";
   cout << "]" << endl;
+}
+
+
+void SafeNaimiTrehelSite::add_predecessors(string s)
+{
+  // recursion base case
+  if(s.length() < 1)
+    return;
+
+  // add the next predecessor
+  size_t comma = s.find(',');
+  predecessors.push_back(atoi(s.substr(0, comma).c_str()));
+
+  // recursive call for string processing, LISP style !
+  add_predecessors(s.substr(comma+1));
 }
