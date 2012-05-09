@@ -82,9 +82,11 @@ protected:
   virtual void print_info();
   // communication
   void send(const char* message, sid_t destination);
-  void send_number(const char* header, int number, sid_t destination);
+  void send_data(const char* header, sid_t destination, int argc, ...);
+  void send_data(const char* header, sid_t destination, int argc,
+                va_list arguments);
   void broadcast(const char* message);
-  void broadcast_number(const char* header, int number);
+  void broadcast_data(const char* header, int argc, ...);
   virtual bool receive(const char* message, sid_t source);
   // overridden communcation
   virtual void receive_hello(sid_t source);

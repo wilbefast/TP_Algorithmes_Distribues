@@ -15,8 +15,7 @@ private:
 private:
   enum Fault
   {
-    NONE_DETECTED,
-    PRED_FAULTY
+    NONE_DETECTED
   };
 
   /* ATTRIBUTES */

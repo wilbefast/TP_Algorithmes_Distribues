@@ -4,7 +4,7 @@
 
 #include "wjd_math.hpp"
 
-#define CS_MAX_DURATION 10*MAX_FPS
+#define CS_TIME_INCREMENT 5*MAX_FPS
 #define CS_PERCENT_CHANCE 1
 
 #define TOKEN "token"
@@ -14,6 +14,7 @@
 
 #define KEY_LIBERATE 'l'
 #define KEY_SUPPLICATE 's'
+#define KEY_TIME 't'
 
 using namespace std;
 
@@ -97,6 +98,13 @@ bool NaimiTrehelSite::treat_input(char input)
       // consume event
       return true;
 
+    // ADD TIME TO CRITICAL SECTION
+    case KEY_TIME:
+      cout << "TIMER" << endl;
+      cs_timer += CS_TIME_INCREMENT;
+      logger->write("liberation timer set to %ds", cs_timer/MAX_FPS);
+      return true;
+
     // LIBERATION
     case KEY_LIBERATE:
       cout << "LIBERATION" << endl;
@@ -153,7 +161,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
     if(father == -1)
       receive_request(origin);
     else
-      send_number(FORWARD_REQUEST_OF, origin, father);
+      send_data(FORWARD_REQUEST_OF, father, 1, origin);
   }
 
   // default !
@@ -226,7 +234,6 @@ void NaimiTrehelSite::critical_section()
 
   // Simulate critical section by waiting for a short duration
   state = WORKING;
-  //cs_timer = rand() % CS_MAX_DURATION;
 }
 
 void NaimiTrehelSite::liberation()
@@ -257,7 +264,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // Forward request on to father if we have one
   if(father != -1)
-    send_number(FORWARD_REQUEST_OF, source, father);
+    send_data(FORWARD_REQUEST_OF, father, 1, source);
 
   // Send the token if we're not using it
   else if(has_token && state != WORKING)

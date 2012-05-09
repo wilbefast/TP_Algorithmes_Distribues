@@ -50,7 +50,7 @@ void SafeNaimiTrehelSite::run()
       else
       {
         // but first, the queue needs to be rebuilt
-        broadcast_number(ARE_YOU_BEFORE, queue_position);
+        broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
         reply_timer = 2 * TIMEOUT;
       }
 

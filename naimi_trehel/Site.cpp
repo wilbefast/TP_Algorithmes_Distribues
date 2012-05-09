@@ -291,6 +291,34 @@ void Site::print_info()
 
 /* COMMUNICATION */
 
+void Site::send_data(const char* header, sid_t destination, int argc, ...)
+{
+  // transform '...' into a va_list structure
+  va_list arguments;
+  va_start(arguments, argc);
+  send_data(header, destination, argc, arguments);
+
+}
+
+void Site::send_data(const char* header, sid_t destination, int argc,
+                    va_list arguments)
+{
+  // create a string-builder object, place the header in it
+  stringstream builder;
+  {
+    string temp(header);
+    builder << temp;
+  }
+
+  // concatenate all number to the end of the header
+  for(int i = 0; i < argc; i++)
+    builder << va_arg(arguments, int) << ',';
+  va_end(arguments);
+
+  // send the result
+  send(builder.str().c_str(), destination);
+}
+
 void Site::send(const char* message, sid_t destination)
 {
   /* Build packet */
@@ -305,28 +333,22 @@ void Site::send(const char* message, sid_t destination)
   logger->write("sent \"%s\" to Site %d", message, destination);
 }
 
-void Site::send_number(const char* header, int number, sid_t destination)
-{
-  // concatenate header and number
-  string temp(header);
-  stringstream oss;
-  oss << temp << number;
-  // send the combination to the requested destination
-  send(oss.str().c_str(), destination);
-}
-
 void Site::broadcast(const char* message)
 {
-  /* Send message to each peer */
+  // Send message to each peer
   for(sid_list_it i = peers.begin(); i != peers.end(); i++)
     send(message, (*i));
 }
 
-void Site::broadcast_number(const char* header, int number)
+void Site::broadcast_data(const char* header, int argc, ...)
 {
-  /* Send message to each peer */
+  // Transform '...' into a va_list structure
+  va_list arguments;
+  va_start(arguments, argc);
+
+  // Send data to each peer
   for(sid_list_it i = peers.begin(); i != peers.end(); i++)
-    send_number(header, number, (*i));
+    send_data(header, (*i), argc, arguments);
 }
 
 bool Site::receive(const char* message, sid_t source)
