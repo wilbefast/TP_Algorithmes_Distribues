@@ -4,6 +4,12 @@
 #include <sstream>
 #include <string>     // for parsing messages
 
+// pro-tip: use hash-defines to prevent typos from causing problems
+#define ARE_YOU_BEFORE "are_you_before:"
+#define ARE_YOU_ALIVE "are_you_alive"
+#define I_AM_ALIVE "i_am_alive"
+#define PREDECESSORS "predecessors:"
+
 using namespace std;
 
 /* CREATION, DESTRUCTION */
@@ -33,16 +39,19 @@ void SafeNaimiTrehelSite::run()
       check_timer--;
     else if (check_timer == 0)
     {
+      check_timer = -1;
       if(!predecessors.empty())
       {
-        send("are_you_alive", predecessors.back());
+        // if there are still predecessors left try to contact the next one
+        send(ARE_YOU_ALIVE, predecessors.back());
         reply_timer = TIMEOUT;
-        check_timer = -1;
       }
+      // if all the predecessors are gone we'll have to regenerate the token
       else
       {
-        check_timer = -1;
-        logger->write("REGENERATING TOKEN NOW");
+        // but first, the queue needs to be rebuilt
+        broadcast_number(ARE_YOU_BEFORE, queue_position);
+        reply_timer = 2 * TIMEOUT;
       }
 
     }
@@ -53,7 +62,7 @@ void SafeNaimiTrehelSite::run()
     reply_timer--;
   else if (reply_timer == 0)
   {
-      // try the next in the queue
+      // try the next in the queue, discarding the non-responsive one
       if(!predecessors.empty())
         predecessors.pop_back();
       check_timer = 0;
@@ -72,15 +81,14 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // create a string object for easier manipulation
   string s_message(message);
 
-  // check for 'are you alive?' message
-  if(!s_message.compare("are_you_alive"))
+  if(!s_message.compare(ARE_YOU_ALIVE))
   {
-    send("i_am_alive", source);
+    send(I_AM_ALIVE, source);
     if(source != next)
       source = next;
   }
 
-  else if(!s_message.compare("i_am_alive"))
+  else if(!s_message.compare(I_AM_ALIVE))
   {
     // check cleared, check again shortly
     check_timer = TIMEOUT;
@@ -88,7 +96,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   }
 
   // check for commit message (confirmation that we are queued up)
-  else if(s_message.find("predecessors:") != string::npos)
+  else if(s_message.find(PREDECESSORS) != string::npos)
   {
     // the first id is that of the token-holder
     add_predecessors(s_message.substr(s_message.find(':')+1));
@@ -98,6 +106,9 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     // start checking the predecessor at regular intervals
     check_timer = TIMEOUT;
   }
+
+  else if(s_message.find(ARE_YOU_BEFORE))
+    ;
 
   // default !
   else
@@ -116,7 +127,7 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
   NaimiTrehelSite::queue(_next);
 
   // build a message composed of the list of predecessors
-  string temp("predecessors:");
+  string temp(PREDECESSORS);
   stringstream oss;
   oss << temp;
 

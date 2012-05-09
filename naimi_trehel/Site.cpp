@@ -20,6 +20,11 @@
 #define ID2PORT(id) BASE_PORT_HEX+id*PORT_SPACING_HEX
 #define PORT2ID(port) (port-BASE_PORT_HEX)/PORT_SPACING_HEX
 
+#define HELLO "hello"
+#define KEY_QUIT 'q'
+#define KEY_CLEAR 'c'
+#define KEY_INFO 'i'
+
 using namespace std;
 
 /* CREATION & DESTRUCTION */
@@ -173,7 +178,7 @@ void Site::start()
     WARN_RTN_VOID("Site::start", "Not properly initialised");
 
   // Let other sites know that this one has joined the fray
-  broadcast("hello");
+  broadcast(HELLO);
 
   // Wake up method defined by specific algorithm
   awaken();
@@ -244,20 +249,20 @@ bool Site::treat_input(char input)
   // switch on remaining inputs
   switch(input)
   {
-    case 'q':
+    case KEY_QUIT:
       cout << "QUIT" << endl;
       state = SHUTDOWN;
       // event consumed
       return true;
     break;
 
-    case 'i':
+    case KEY_INFO:
       cout << "INFORMATION" << endl;
       print_info();
       // event consumed
       return true;
 
-    case 'c':
+    case KEY_CLEAR:
       cout << string(30, '\n');
       // event consumed
       return true;
@@ -334,7 +339,7 @@ bool Site::receive(const char* message, sid_t source)
   /// Standard utility protocols
 
   // A new Site is registring its existence
-  if(!strcmp(message, "hello"))
+  if(!strcmp(message, HELLO))
   {
     receive_hello(source);
     return true;  // consume event

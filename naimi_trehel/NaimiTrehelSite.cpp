@@ -7,6 +7,14 @@
 #define CS_MAX_DURATION 10*MAX_FPS
 #define CS_PERCENT_CHANCE 1
 
+#define TOKEN "token"
+#define I_HAVE_TOKEN "i_have_token"
+#define REQUEST "request"
+#define FORWARD_REQUEST_OF "forward_request_of:"
+
+#define KEY_LIBERATE 'l'
+#define KEY_SUPPLICATE 's'
+
 using namespace std;
 
 NaimiTrehelSite::NaimiTrehelSite() :
@@ -78,7 +86,7 @@ bool NaimiTrehelSite::treat_input(char input)
   switch(input)
   {
     // SUPPLICATION
-    case 's':
+    case KEY_SUPPLICATE:
       cout << "SUPPLICATION" << endl;
       if(state == REQUESTING)
         logger->write("already supplicating");
@@ -90,7 +98,7 @@ bool NaimiTrehelSite::treat_input(char input)
       return true;
 
     // LIBERATION
-    case 'l':
+    case KEY_LIBERATE:
       cout << "LIBERATION" << endl;
       if(state == WORKING)
         liberation();
@@ -120,24 +128,24 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   string s_message(message);
 
   // received a message telling us who has the token
-  if(!s_message.compare("i_have_token"))
+  if(!s_message.compare(I_HAVE_TOKEN))
   {
     father = source;
     logger->write("Site %d is known to have the token", father);
   }
 
   // received a request for the critical section
-  else if(!s_message.compare("request"))
+  else if(!s_message.compare(REQUEST))
     receive_request(source);
 
   // received the token
-  else if(!s_message.compare("token"))
+  else if(!s_message.compare(TOKEN))
     // the presence of the token will be detected in the main 'run' loop and
     // so if requesting the site will enter the critical section
     has_token = true;
 
   // request forwarded on from another site
-  else if(s_message.find("forward_req_of:") != string::npos)
+  else if(s_message.find(FORWARD_REQUEST_OF) != string::npos)
   {
     sid_t origin = atoi(s_message.substr(s_message.find(':')+1).c_str());
 
@@ -145,7 +153,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
     if(father == -1)
       receive_request(origin);
     else
-      send_number("forward_req_of:", origin, father);
+      send_number(FORWARD_REQUEST_OF, origin, father);
   }
 
   // default !
@@ -166,7 +174,7 @@ void NaimiTrehelSite::receive_hello(sid_t source)
 
   // also let the new Site known if this Site has the token
   if(has_token)
-    send("i_have_token", source);
+    send(I_HAVE_TOKEN, source);
 }
 
 void NaimiTrehelSite::queue(sid_t _next)
@@ -204,7 +212,7 @@ void NaimiTrehelSite::supplication()
   // get the token from father, thus indirectly from the root
   if(father != -1)
   {
-    send("request",father);
+    send(REQUEST, father);
     father = -1;
   }
 
@@ -249,7 +257,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // Forward request on to father if we have one
   if(father != -1)
-    send_number("forward_req_of:", source, father);
+    send_number(FORWARD_REQUEST_OF, source, father);
 
   // Send the token if we're not using it
   else if(has_token && state != WORKING)
@@ -262,5 +270,5 @@ void NaimiTrehelSite::receive_request(sid_t source)
 void NaimiTrehelSite::send_token(sid_t destination)
 {
   has_token = false;
-  send("token", destination);
+  send(TOKEN, destination);
 }
