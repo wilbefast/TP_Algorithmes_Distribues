@@ -222,11 +222,7 @@ void NaimiTrehelSite::receive_request(sid_t source)
   {
     // queue the sender behind us... unless someone else already called shotgun
     if (next == -1)
-    {
-        next = source;
-        printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
-              id, source);
-    }
+      queue(source);
   }
 
   // Forward request on to father if we have one
@@ -255,4 +251,11 @@ void NaimiTrehelSite::send_token(sid_t destination)
 {
   has_token = false;
   send("token", destination);
+}
+
+void NaimiTrehelSite::queue(sid_t _next)
+{
+  next = _next;
+  printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
+        id, _next);
 }

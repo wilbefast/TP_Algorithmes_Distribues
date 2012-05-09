@@ -33,6 +33,7 @@ private:
   void receive_request(sid_t source);
   void receive_token(sid_t source);
   void send_token(sid_t destination);
+  void queue(sid_t _next);
 };
 
 #endif // NAIMITREHELDEMON_HPP_INCLUDED
