@@ -114,7 +114,7 @@ void Site::awaken()
 
 Site::~Site()
 {
-  logger->write("destroyed");
+  logger->write("goodbye cruel word!");
 
   /* Destroy the logger */
   delete logger;
@@ -285,7 +285,7 @@ void Site::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  logger->write("I sent \"%s\" to Site %d", message, destination);
+  logger->write("sent \"%s\" to Site %d", message, destination);
 }
 
 void Site::send_number(const char* header, int number, sid_t destination)
@@ -307,7 +307,7 @@ void Site::broadcast(const char* message)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  logger->write("I received \"%s\" from Site %d", message, source);
+  logger->write("received \"%s\" from Site %d", message, source);
 
   // Get the clock value
   string s(message);
@@ -318,7 +318,7 @@ bool Site::receive(const char* message, sid_t source)
   if(!strcmp(message, "hello"))
   {
     peers.push_back(source);
-    logger->write("I added %d as a new peer", source);
+    logger->write("added %d as a new peer", source);
     return true;  // consume event
   }
 

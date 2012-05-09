@@ -16,6 +16,7 @@ owner(_owner)
 
 void SiteLogger::write(const char* format, ...)
 {
+  // get the time
   static struct tm* current;
 	static time_t now;
 	time(&now);
