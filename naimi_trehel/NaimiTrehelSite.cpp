@@ -224,12 +224,12 @@ void NaimiTrehelSite::receive_request(sid_t source)
     }
   }
 
-  // Request token from father
+  // Forward request on to father if we have one
   if(father != -1)
     send_number("forward_req_of:", source, father);
 
-  // Send the token
-  else if(has_token)
+  // Send the token if we're not using it
+  else if(has_token && state != WORKING)
     send_token(source);
 
   // The site requesting the token is now my new father
