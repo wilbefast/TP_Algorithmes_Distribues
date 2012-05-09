@@ -7,9 +7,14 @@
 
 class SafeNaimiTrehelSite : public NaimiTrehelSite
 {
+  /* CONSTANTS */
+private:
+  static const int CHECK_INTERVAL = MAX_FPS; // once per second
+
   /* ATTRIBUTES */
 private:
   sid_list_t predecessors;
+  unsigned int check_timer;
 
   /* METHODS */
 public:

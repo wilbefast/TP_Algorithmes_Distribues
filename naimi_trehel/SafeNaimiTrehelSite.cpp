@@ -30,8 +30,12 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // check for commit message (confirmation that we are queued up)
   if(s_message.find("predecessors:") != string::npos)
   {
+    // the first id is that of the token-holder
     add_predecessors(s_message.substr(s_message.find(':')+1));
+    // the last id is the predecessor of the source of the message
     predecessors.push_back(source);
+    // start checking the predecessor at regular intervals
+    check_timer = CHECK_INTERVAL;
   }
 
   // default !
@@ -54,6 +58,8 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
   string temp("predecessors:");
   stringstream oss;
   oss << temp;
+
+  // the first id is that of the token-holder
   for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
     oss << (*i) << ',';
 
