@@ -82,8 +82,15 @@ bool NaimiTrehelSite::treat_input(char input)
     case 's':
       cout << "SUPPLICATION" << endl;
       if(state != REQUESTING && state != WORKING)
+      {
         supplication();
         return true;
+      }
+      else
+      {
+        printf("Site %d: 'can't supplicate at the moment'\n", id);
+        return false;
+      }
     break;
 
     default:
@@ -96,6 +103,18 @@ void NaimiTrehelSite::print_info()
 {
   // print generic Site information
   Site::print_info();
+
+  // Does this site have the token ?
+  cout << "has_token = " << has_token << endl;
+
+  // Critical section timer
+  cout << "cs_timer = " << cs_timer << endl;
+
+  // Father (in the tree)
+  cout << "father = " << father << endl;
+
+  // Next (in the queue)
+  cout << "next = " << next << endl;
 }
 
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
@@ -200,6 +219,8 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // The site requesting the token is now my new father
   father = source;
+
+  print_info();
 }
 
 void NaimiTrehelSite::receive_token(sid_t source)
