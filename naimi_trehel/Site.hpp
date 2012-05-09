@@ -8,8 +8,6 @@
 #define MAX_DEMONS 1000
 #define MAX_FPS 30
 
-#define STR_EQ(x, y) !strcmp(x, y)
-
 // NB - 'id_t' is already defined by POSIX as an *unsigned* integer
 typedef int sid_t;  // 'signed identifier type'
 typedef std::list<sid_t> sid_list_t;
@@ -23,8 +21,8 @@ protected:
   {
     ASLEEP,
     IDLE,
+    REQUESTING,
     WORKING,
-    WAITING,
     ERROR,
     SHUTDOWN
   };
@@ -40,8 +38,6 @@ private:
   int clock;
 
 protected:
-  // fork
-  pid_t wait_process;
   // identifiers
   sid_t id;
   sid_list_t peers;
@@ -65,15 +61,18 @@ private:
   int shutdown();
   int unregister_id();
   // main loop
-  int run();
   void wait();
 protected:
   // creation, destruction
   virtual void awaken();
   // main loop
+  virtual void run();
+  // user interface
   virtual bool treat_input(char input);
+  virtual void print_info();
   // communication
   void send(const char* message, sid_t destination);
+  void send_number(const char* header, int number, sid_t destination);
   void broadcast(const char* message);
   virtual bool receive(const char* message, sid_t source);
 };

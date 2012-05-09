@@ -10,7 +10,7 @@ class NaimiTrehelSite : public Site
   /* ATTRIBUTES */
 private:
   bool has_token;
-  bool is_requesting;
+  unsigned int cs_timer;
   sid_t father;
   sid_t next;
 
@@ -21,7 +21,9 @@ public:
 protected:
   // overrides
   void awaken();
+  void run();
   bool treat_input(char input);
+  void print_info();
   bool receive(const char* message, sid_t source);
 private:
   // subroutines

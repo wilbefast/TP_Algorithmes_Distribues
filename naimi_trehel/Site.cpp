@@ -1,6 +1,7 @@
 // File streaming
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "Site.hpp"
 
@@ -31,7 +32,6 @@ packet(NULL),
 this_tick(0),
 next_tick(0),
 clock(0),
-wait_process(-1),
 id(0),
 peers(),
 state(ERROR)
@@ -110,30 +110,6 @@ void Site::awaken()
   state = IDLE;
 }
 
-bool Site::treat_input(char input)
-{
-  /* Generic interpret input method only deals with quit command */
-
-  // ignore all null inputs
-  if(!input)
-    return true;
-
-  // switch on remaining inputs
-  switch(input)
-  {
-    case 'q':
-      state = SHUTDOWN;
-      // event consumed
-      return true;
-    break;
-
-    default:
-      // event not consumed
-      return false;
-    break;
-  }
-}
-
 Site::~Site()
 {
   printf("Site %d destroyed\n", id);
@@ -185,43 +161,33 @@ int Site::unregister_id()
 
 void Site::start()
 {
-  /* Make sure them site has been correctly initialised */
+  // Make sure them site has been correctly initialised
   if(state != ASLEEP)
     WARN_RTN_VOID("Site::start", "Not properly initialised");
 
-  /* Let other sites know that this one has joined the fray */
+  // Let other sites know that this one has joined the fray
   broadcast("hello");
 
-  /* Wake up method defined by specific algorithm */
+  // Wake up method defined by specific algorithm
   awaken();
 
-  /* Run until there's a problem or a manual shut-down */
+  // Run until there's a problem or a manual shut-down
   while(state != ERROR && state != SHUTDOWN)
-  {
-    // don't use 100% of the CPU !
-    wait();
-
-    // check for key-presses
-    treat_input(kbhit());
-
-    // stop if there's an error
-    if(run() != EXIT_SUCCESS)
-      state = ERROR;
-  }
-
-  // destroy the waiting process
-  if (wait_process != -1)
-    kill (wait_process, SIGKILL);
+    // Run method should be partially masked by specific algorithm
+    run();
 }
 
-int Site::run()
+void Site::run()
 {
-  /* Check inbox */
+  // Don't use 100% of the CPU !
+  wait();
+
+  // Check for key-presses
+  treat_input(kbhit());
+
+  // Check inbox
   if (SDLNet_UDP_Recv(socket, packet))
     receive((char*)packet->data, PORT2ID(packet->address.port));
-
-  /* All clear ! */
-  return EXIT_SUCCESS;
 }
 
 // Regulate the number of frames per second, pausing only if need be
@@ -238,6 +204,54 @@ void Site::wait()
 	next_tick = this_tick + (1000/MAX_FPS);
 }
 
+bool Site::treat_input(char input)
+{
+  /* Generic interpret input method only deals with quit command */
+
+  // ignore all null inputs
+  if(!input)
+    return true;
+  else
+    cout << " -> ";
+
+  // switch on remaining inputs
+  switch(input)
+  {
+    case 'q':
+      cout << "QUIT" << endl;
+      state = SHUTDOWN;
+      // event consumed
+      return true;
+    break;
+
+    case 'i':
+      cout << "INFORMATION" << endl;
+      print_info();
+      // event consumed
+      return true;
+
+    default:
+      // event not consumed
+      return false;
+    break;
+  }
+}
+
+void Site::print_info()
+{
+  // Site identifier
+  cout << "id = " << id << endl;
+
+  // Site peers
+  cout << "peers = [ ";
+  for(sid_list_it i = peers.begin(); i != peers.end(); i++)
+    cout << (*i) << " ";
+  cout << "]" << endl;
+
+  // Site state
+  cout << "state = " << state << endl;
+}
+
 
 /* COMMUNICATION */
 
@@ -252,7 +266,18 @@ void Site::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  printf("Site %d: 'I sent \"%s\" to Site %d'\n", id, message, destination);
+  printf("%ld -- Site %d: 'I sent \"%s\" to Site %d'\n", time(NULL),
+        id, message, destination);
+}
+
+void Site::send_number(const char* header, int number, sid_t destination)
+{
+  // concatenate header and number
+  string temp(header);
+  stringstream oss;
+  oss << temp << number;
+  // send the combination to the requested destination
+  send(oss.str().c_str(), destination);
 }
 
 void Site::broadcast(const char* message)
@@ -264,7 +289,8 @@ void Site::broadcast(const char* message)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  printf("Site %d: 'I received \"%s\" from Site %d'\n", id, message, source);
+  printf("%ld -- Site %d: 'I received \"%s\" from Site %d'\n", time(NULL),
+      id, message, source);
 
   // Get the clock value
   string s(message);
@@ -275,7 +301,8 @@ bool Site::receive(const char* message, sid_t source)
   if(!strcmp(message, "hello"))
   {
     peers.push_back(source);
-    printf("Site %d: 'I added %d as a new peer'\n", id, source);
+    printf("%ld -- Site %d: 'I added %d as a new peer'\n", time(NULL),
+          id, source);
     return true;  // consume event
   }
 
