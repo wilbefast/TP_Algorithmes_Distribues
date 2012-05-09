@@ -151,7 +151,12 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   else if(s_message.find("forward_req_of:") != string::npos)
   {
     sid_t origin = atoi(s_message.substr(s_message.find(':')+1).c_str());
-    receive_request(origin);
+
+    // keep forwarding on the message until it reaches the root of the tree
+    if(father == -1)
+      receive_request(origin);
+    else
+      send_number("forward_req_of:", origin, father);
   }
 
   // default !
