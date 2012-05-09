@@ -1,8 +1,4 @@
 #include <iostream>
-#include <errno.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <signal.h>
 
 #include "NaimiTrehelSite.hpp"
 
@@ -10,10 +6,6 @@
 
 #define CS_MAX_DURATION 150
 #define CS_PERCENT_CHANCE 1
-
-#define FORK_FAILED -1
-#define FORK_CHILD 0
-#define FORK_PARENT 1
 
 using namespace std;
 
@@ -41,7 +33,39 @@ void NaimiTrehelSite::awaken()
   else
   {
     father = peers.front();
-    printf("Site %d: 'Site %d is assumed to have the token'\n", id, father);
+    printf("%ld -- Site %d: 'Site %d is assumed to have the token'\n",
+          time(NULL), id, father);
+  }
+}
+
+void NaimiTrehelSite::run()
+{
+  // call super-class's generic main loop method
+  Site::run();
+
+  switch(state)
+  {
+    case REQUESTING:
+      // if requesting critical section, wait for token to arrive
+      if(has_token)
+        critical_section();
+    break;
+
+    case WORKING:
+      // if in critical section, simulate a task via a timer
+      if(cs_timer)
+      {
+        cs_timer--;
+        if(!(cs_timer % MAX_FPS))
+          printf("%ld -- Site %d: 'liberating critical section in %d second(s)'\n",
+                time(NULL), id, cs_timer/MAX_FPS);
+      }
+      else
+        liberation();
+    break;
+
+    default:
+    break;
   }
 }
 
@@ -75,33 +99,54 @@ bool NaimiTrehelSite::treat_input(char input)
   }
 }
 
+void NaimiTrehelSite::print_info()
+{
+  // print generic Site information
+  Site::print_info();
+
+  // Does this site have the token ?
+  cout << "has_token = " << has_token << endl;
+
+  // Critical section timer
+  cout << "cs_timer = " << cs_timer << endl;
+
+  // Father (in the tree)
+  cout << "father = " << father << endl;
+
+  // Next (in the queue)
+  cout << "next = " << next << endl;
+}
+
 bool NaimiTrehelSite::receive(const char* message, sid_t source)
 {
+  // create a string object for easier manipulation
+  string s_message(message);
+
   // standard utility protocols
   if(Site::receive(message, source))
   {
-    if(has_token && !strcmp("hello", message))
+    if(has_token && !s_message.compare("hello"))
       send("i_have_token", source);
   }
 
   /* received a message not consumed by Site::receive */
 
   // received a message telling us who has the token
-  else if(!strcmp("i_have_token", message))
+  else if(!s_message.compare("i_have_token"))
   {
     father = source;
-    printf("Site %d: 'Site %d is known to have the token'\n", id, father);
+    printf("%ld -- Site %d: 'Site %d is known to have the token'\n", time(NULL),
+          id, father);
   }
 
   // received a request for the critical section
-  else if(!strcmp("request", message))
+  else if(!s_message.compare("request"))
     receive_request(source);
 
   // received the token
-  else if(!strcmp("token", message))
+  else if(!s_message.compare("token"))
     receive_token(source);
 
-<<<<<<< HEAD
   // request forwarded on from another site
   else if(s_message.find("forward_req_of:") != string::npos)
   {
@@ -109,12 +154,11 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
     receive_request(origin);
   }
 
-=======
->>>>>>> a2df818d549fab99322e272b5f156e83d45ff21b
   // default !
   else
   {
-    printf("Site %d: 'Unknown message \"%s\" from %d'\n", id, message, source);
+    printf("%ld -- Site %d: 'Unknown message \"%s\" from %d'\n", time(NULL), id,
+          message, source);
     return false;
   }
 
@@ -123,100 +167,40 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
 }
 
 /* SUBROUTINES */
-static bool *mem_has_token;
+
 void NaimiTrehelSite::supplication()
 {
   // requesting on behalf of self, not a different site
-  is_requesting = true;
+  state = REQUESTING;
 
-  // Allocate a shared memory segment for each desired shared variable and save the id
-  int memid_has_token = shmget(IPC_PRIVATE, 100, 0700 | IPC_CREAT);
-  if (memid_has_token == -1)
+  // get the token from father, thus indirectly from the root
+  if(father != -1)
   {
-      perror("shmget");
-      exit (EXIT_FAILURE);
+    send("request",father);
+    father = -1;
   }
 
-  /* mounting memory segments */
-  mem_has_token = (bool*)shmat(memid_has_token, NULL, 0);
-
-  /* affecting the right values to the right variables */
-  mem_has_token[0] = has_token;
-
-  printf("Site %d: 'Requesting critical section now'\n", id);
-  // get the token from father, thus indirectly from the root
-      if(father != -1)
-      {
-          send("request",father);
-          father = -1;
-
-          // wait for the token to arrive
-          wait_process = fork();
-          switch (wait_process)
-          {
-            // Fork failed
-            case FORK_FAILED:
-                perror("fork");
-                exit(EXIT_FAILURE); // Critical error -> Shutdown
-            break;
-
-            // Child process -- enter critical section, liberate and then die
-            case FORK_CHILD:
-                while(!mem_has_token[0])
-                {
-                    printf("Site %d: 'Child process waiting for the token'\n", id);
-                    SDL_Delay(1000);
-                }
-                // kill the child process
-                exit(EXIT_SUCCESS);
-            break;
-            // Parent process -- return to other matters (replying to other sites)
-            case FORK_PARENT:
-            default:
-            //printf("Site %d: 'Parent process returning to other duties'\n", id);
-            break;
-          }
-          // enter critical section
-          critical_section();
-
-          // free up critical section
-          liberation();
-      }
-      else
-      {
-        // enter critical section
-        critical_section();
-
-        // free up critical section
-        liberation();
-      }
+  // state is now REQUESTING : we'll enter the critical section when the token
+  // arrives (see NaimiTrehelSite::run).
 }
 
 void NaimiTrehelSite::critical_section()
 {
-  printf("Site %d: 'I am entering critical section now'\n", id);
+  printf("%ld -- Site %d: 'I am entering critical section now'\n", time(NULL),
+          id);
 
-  /* Currently in critical section */
+  // Simulate critical section by waiting for a short duration
   state = WORKING;
-
-  /* Simulate critical section by waiting for a short duration */
-  // SDL_Delay(rand() % CS_MAX_DURATION);
-  SDL_Delay(1000);
+  cs_timer = rand() % CS_MAX_DURATION;
 }
 
 void NaimiTrehelSite::liberation()
 {
-  printf("Site %d: 'I am leaving critical section now'\n", id);
+  printf("%ld -- Site %d: 'I am leaving critical section now'\n", time(NULL),
+        id);
 
   /* Critical section no longer required */
-  is_requesting = false;
-
-  // Destroys the son process, in case he's still alive >>:)
-  if (wait_process != -1)
-  {
-    kill (wait_process, SIGKILL);
-    wait_process = -1;
-  }
+  state = IDLE;
 
   /* Send token to next site in queue */
   if(next != -1)
@@ -228,13 +212,17 @@ void NaimiTrehelSite::liberation()
 
 void NaimiTrehelSite::receive_request(sid_t source)
 {
-  /* Queue this requesting site up after self */
-  if (is_requesting)
+  // If requesting already and not already in the critical section
+  if (state == REQUESTING || state == WORKING)
   {
+    // queue the sender behind us... unless someone else already called shotgun
     if (next == -1)
+    {
         next = source;
+        printf("%ld -- Site %d: 'Site %d is now queued after me'\n", time(NULL),
+              id, source);
+    }
   }
-<<<<<<< HEAD
 
   // Forward request on to father if we have one
   if(father != -1)
@@ -243,20 +231,8 @@ void NaimiTrehelSite::receive_request(sid_t source)
   // Send the token if we're not using it
   else if(has_token && state != WORKING)
     send_token(source);
-=======
-  /* Request token from father */
-  else if(father != -1)
-  {
-    send("request", source);
-  }
-  /* Send the token */
-  else if(has_token)
-  {
-      send("token", source);
-  }
->>>>>>> a2df818d549fab99322e272b5f156e83d45ff21b
 
-  /* The site requesting the token is now my new father */
+  // The site requesting the token is now my new father
   father = source;
 }
 
@@ -264,7 +240,10 @@ void NaimiTrehelSite::receive_token(sid_t source)
 {
   // this site is now the root of the tree
   has_token = true;
-  mem_has_token[0] = 1;
+
+  // perform critical section if the token was requested for the site itself
+  if(state == REQUESTING)
+    critical_section();
 }
 
 void NaimiTrehelSite::send_token(sid_t destination)
