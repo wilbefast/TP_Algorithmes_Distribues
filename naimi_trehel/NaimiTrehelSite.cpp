@@ -1,5 +1,5 @@
 #include <iostream>
-#include <errno.h>
+#include <sstream>
 
 #include "NaimiTrehelSite.hpp"
 
@@ -210,8 +210,13 @@ void NaimiTrehelSite::receive_request(sid_t source)
   }
 
   // Request token from father
-  else if(father != -1)
-    send("request", father);
+  if(father != -1)
+  {
+    string temp("forward_request(");
+    stringstream oss;
+    oss << temp << source << ")";
+    send(oss.str().c_str(), father);
+  }
 
   // Send the token
   else if(has_token)
@@ -219,8 +224,6 @@ void NaimiTrehelSite::receive_request(sid_t source)
 
   // The site requesting the token is now my new father
   father = source;
-
-  print_info();
 }
 
 void NaimiTrehelSite::receive_token(sid_t source)
