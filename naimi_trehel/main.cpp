@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 	ASSERT_NET(SDLNet_Init() >= 0, "Initialising SDL Net");
 
   // Create the Site
-	NaimiTrehelSite site;
+	SafeNaimiTrehelSite site;
 
   // Launch the Site
   site.start();

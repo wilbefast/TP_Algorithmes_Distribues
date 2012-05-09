@@ -11,6 +11,9 @@ using namespace std;
 SafeNaimiTrehelSite::SafeNaimiTrehelSite() :
 NaimiTrehelSite(),
 predecessors(),
+check_timer(-1),
+reply_timer(-1),
+queue_position(-1),
 fault(NONE_DETECTED)
 {
 }
@@ -80,6 +83,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     add_predecessors(s_message.substr(s_message.find(':')+1));
     // the last id is the predecessor of the source of the message
     predecessors.push_back(source);
+    queue_position = predecessors.size();
     // start checking the predecessor at regular intervals
     check_timer = TIMEOUT;
   }

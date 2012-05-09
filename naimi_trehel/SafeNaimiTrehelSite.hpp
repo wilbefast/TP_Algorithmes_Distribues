@@ -24,6 +24,7 @@ private:
   sid_list_t predecessors;
   int check_timer;
   int reply_timer;
+  int queue_position;
   Fault fault;
 
   /* METHODS */

@@ -151,7 +151,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   // default !
   else
   {
-    logger->write("Unknown message \"%s\" from %d", message, source);
+    //logger->write("Unknown message \"%s\" from %d", message, source);
     return false;
   }
 
