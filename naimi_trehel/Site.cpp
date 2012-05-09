@@ -32,7 +32,8 @@ next_tick(0),
 clock(0),
 id(0),
 peers(),
-state(ERROR)
+state(ERROR),
+logger(NULL)
 {
   /* Try to initialise the Site, catch errors */
   if(init() != EXIT_SUCCESS)
@@ -52,6 +53,9 @@ int Site::init()
 	/* Allocate memory for the packet */
 	ASSERT(packet = SDLNet_AllocPacket(PACKET_SIZE),
           "Allocating memory for packet");
+
+  /* Create the logger */
+  logger = new SiteLogger(this);
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -73,7 +77,7 @@ int Site::register_id()
     peers.push_back(new_peer);
 
   /* choose an identifier not already taken by another site */
-  for(id = 0; id < MAX_DEMONS; id++)
+  for(id = 0; id < MAX_SITES; id++)
   {
     bool in_use = false;
 
@@ -94,6 +98,9 @@ int Site::register_id()
   /* Register this identifier in the file */
   oregistry << id << endl;
   printf("This Site believes that it is number %d\n", id);
+
+  /* Destroy the logger */
+  delete logger;
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -254,7 +261,6 @@ void Site::print_info()
   // Site state
   cout << "state = " << state << endl;
 }
-
 
 /* COMMUNICATION */
 

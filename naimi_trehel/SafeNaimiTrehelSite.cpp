@@ -49,16 +49,16 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
   // standard operations
   NaimiTrehelSite::queue(_next);
 
-  // inform the queued site that it is now behind this site in the queue
+  cout << "HELLO!" << endl;
 
+  // build a message composed of the list of predecessors
   string temp("predecessors:");
   stringstream oss;
   oss << temp;
-
   for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
     oss << (*i) << ',';
 
-  // send the combination to the requested destination
+  // inform the queued site that it is now behind this site in the queue
   send(oss.str().c_str(), _next);
 }
 

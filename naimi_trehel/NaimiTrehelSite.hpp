@@ -1,5 +1,5 @@
-#ifndef NAIMITREHELDEMON_HPP_INCLUDED
-#define NAIMITREHELDEMON_HPP_INCLUDED
+#ifndef NAIMITREHELSITE_HPP_INCLUDED
+#define NAIMITREHELSITE_HPP_INCLUDED
 
 #include "Site.hpp"
 
@@ -37,4 +37,4 @@ private:
   void send_token(sid_t destination);
 };
 
-#endif // NAIMITREHELDEMON_HPP_INCLUDED
+#endif // NAIMITREHELSITE_HPP_INCLUDED

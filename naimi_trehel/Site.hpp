@@ -1,11 +1,15 @@
-#ifndef DEMON_HPP_INCLUDED
-#define DEMON_HPP_INCLUDED
+#ifndef SITE_HPP_INCLUDED
+#define SITE_HPP_INCLUDED
 
 #include <list>
 
 #include "SDL/SDL_net.h"
 
-#define MAX_DEMONS 1000
+// mutual dependence
+class Site;
+#include "SiteLogger.hpp"
+
+#define MAX_SITES 1000
 #define MAX_FPS 30
 
 // NB - 'id_t' is already defined by POSIX as an *unsigned* integer
@@ -43,6 +47,8 @@ protected:
   sid_list_t peers;
   // automaton
   State state;
+  // debug information
+  SiteLogger* logger;
 
   /* METHODS */
 protected:
@@ -77,4 +83,4 @@ protected:
   virtual bool receive(const char* message, sid_t source);
 };
 
-#endif // DEMON_HPP_INCLUDED
+#endif // SITE_HPP_INCLUDED

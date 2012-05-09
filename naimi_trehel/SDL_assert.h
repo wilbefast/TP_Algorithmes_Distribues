@@ -11,7 +11,7 @@ William J. Dyce
 /* ERROR LOGGING */
 
 #define LOG(level, what, why)                          \
-		printf("%lds -- %s - %s: %s\n", time(NULL), level, what, why)
+		printf("%s - %s: %s\n", level, what, why)
 #define LOG_I(what, why)                               \
     LOG("INFO", what, why)
 #define LOG_W(what, why)                               \
