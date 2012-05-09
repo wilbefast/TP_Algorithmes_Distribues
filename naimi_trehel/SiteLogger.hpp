@@ -7,6 +7,7 @@ class SiteLogger;
 
 class SiteLogger
 {
+
   /* ATTRIBUTES */
 private:
   Site* owner;
@@ -15,6 +16,8 @@ private:
 public:
   // creation, destruction
   SiteLogger(Site* _owner);
+  void write(const char* format, ...);
+
 };
 
 #endif // SITELOGGER_HPP_INCLUDED

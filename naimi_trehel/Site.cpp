@@ -35,6 +35,9 @@ peers(),
 state(ERROR),
 logger(NULL)
 {
+  /* Create the logger */
+  logger = new SiteLogger(this);
+
   /* Try to initialise the Site, catch errors */
   if(init() != EXIT_SUCCESS)
     WARN("Site::Site", "Initialisation failed");
@@ -53,9 +56,6 @@ int Site::init()
 	/* Allocate memory for the packet */
 	ASSERT(packet = SDLNet_AllocPacket(PACKET_SIZE),
           "Allocating memory for packet");
-
-  /* Create the logger */
-  logger = new SiteLogger(this);
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -97,10 +97,7 @@ int Site::register_id()
 
   /* Register this identifier in the file */
   oregistry << id << endl;
-  printf("This Site believes that it is number %d\n", id);
-
-  /* Destroy the logger */
-  delete logger;
+  logger->write("registered my identifier");
 
   /* All clear! */
   return EXIT_SUCCESS;
@@ -111,13 +108,17 @@ int Site::register_id()
 void Site::awaken()
 {
   /* Generic wake-up call which does nothing special */
-  printf("Site %d woke up\n", id);
+  logger->write("woke up");
   state = IDLE;
 }
 
 Site::~Site()
 {
-  printf("Site %d destroyed\n", id);
+  logger->write("destroyed");
+
+  /* Destroy the logger */
+  delete logger;
+
 
   /* Attempt to clean up the mess */
   WARN_IF(shutdown() != EXIT_SUCCESS, "Site::~Site",
@@ -209,6 +210,15 @@ void Site::wait()
 	next_tick = this_tick + (1000/MAX_FPS);
 }
 
+/* QUERY */
+
+sid_t Site::getId() const
+{
+  return id;
+}
+
+/* USER INTERFACE */
+
 bool Site::treat_input(char input)
 {
   /* Generic interpret input method only deals with quit command */
@@ -275,8 +285,7 @@ void Site::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  printf("%ld -- Site %d: 'I sent \"%s\" to Site %d'\n", time(NULL),
-        id, message, destination);
+  logger->write("I sent \"%s\" to Site %d", message, destination);
 }
 
 void Site::send_number(const char* header, int number, sid_t destination)
@@ -298,8 +307,7 @@ void Site::broadcast(const char* message)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  printf("%ld -- Site %d: 'I received \"%s\" from Site %d'\n", time(NULL),
-      id, message, source);
+  logger->write("I received \"%s\" from Site %d", message, source);
 
   // Get the clock value
   string s(message);
@@ -310,8 +318,7 @@ bool Site::receive(const char* message, sid_t source)
   if(!strcmp(message, "hello"))
   {
     peers.push_back(source);
-    printf("%ld -- Site %d: 'I added %d as a new peer'\n", time(NULL),
-          id, source);
+    logger->write("I added %d as a new peer", source);
     return true;  // consume event
   }
 

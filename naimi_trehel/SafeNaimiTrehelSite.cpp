@@ -28,14 +28,14 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // check for commit message (confirmation that we are queued up)
   else if(s_message.find("predecessors:") != string::npos)
   {
-    printf("%ld -- Site %d: 'BINK BINK \"%s\" from %d'\n", time(NULL), id,
+    logger->write("BINK BINK \"%s\" from %d'\n", time(NULL), id,
           message, source);
   }
 
   // default !
   else
   {
-    printf("%ld -- Site %d: 'Unknown message \"%s\" from %d'\n", time(NULL), id,
+    logger->write("Unknown message \"%s\" from %d'\n", time(NULL), id,
           message, source);
     return false;
   }

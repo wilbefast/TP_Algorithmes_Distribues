@@ -58,6 +58,8 @@ protected:
 public:
   // main loop
   void start();
+  // query
+  sid_t getId() const;
 
   /* SUBROUTINES */
 private:
