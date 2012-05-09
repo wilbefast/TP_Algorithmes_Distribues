@@ -33,8 +33,18 @@ void SafeNaimiTrehelSite::run()
       check_timer--;
     else if (check_timer == 0)
     {
-      send("are_you_alive", predecessors.back());
-      reply_timer = TIMEOUT;
+      if(!predecessors.empty())
+      {
+        send("are_you_alive", predecessors.back());
+        reply_timer = TIMEOUT;
+        check_timer = -1;
+      }
+      else
+      {
+        check_timer = -1;
+        logger->write("REGENERATING TOKEN NOW");
+      }
+
     }
   }
 
@@ -43,9 +53,11 @@ void SafeNaimiTrehelSite::run()
     reply_timer--;
   else if (reply_timer == 0)
   {
-    fault = PRED_FAULTY;
-    predecessors.pop_back();
-    check_timer = 0;
+      // try the next in the queue
+      if(!predecessors.empty())
+        predecessors.pop_back();
+      check_timer = 0;
+      reply_timer = -1;
   }
 }
 
@@ -70,7 +82,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 
   else if(!s_message.compare("i_am_alive"))
   {
-    // check again shortly
+    // check cleared, check again shortly
     check_timer = TIMEOUT;
     reply_timer = -1;
   }
