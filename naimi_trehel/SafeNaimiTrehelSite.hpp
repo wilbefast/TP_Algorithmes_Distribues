@@ -46,6 +46,7 @@ protected:
   void print_info();
   // main methdods
   void liberation();
+  void send_token(sid_t destination);
 private:
   // subroutines
   const char* mechanism_to_cstr();

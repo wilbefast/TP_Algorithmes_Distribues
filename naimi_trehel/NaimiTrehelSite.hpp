@@ -19,6 +19,8 @@ protected:
 public:
   // creation, destruction
   NaimiTrehelSite();
+  // query
+  bool hasToken() const;
 protected:
     // fault recovery
   void regenerate_token();
@@ -30,14 +32,13 @@ protected:
   void receive_hello(sid_t source);
   virtual void queue(sid_t _next);
   virtual void print_info();
-  // main methods
+  // subroutines
   virtual void critical_section();
   virtual void liberation();
+  virtual void send_token(sid_t destination);
 private:
-  // subroutines
   void supplication();
   void receive_request(sid_t source);
-  void send_token(sid_t destination);
 };
 
 #endif // NAIMITREHELSITE_HPP_INCLUDED

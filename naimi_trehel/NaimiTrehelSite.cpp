@@ -27,6 +27,11 @@ next(-1)
 {
 }
 
+bool NaimiTrehelSite::hasToken() const
+{
+  return has_token;
+}
+
 void NaimiTrehelSite::awaken()
 {
   state = IDLE;
@@ -50,6 +55,7 @@ void NaimiTrehelSite::awaken()
 
 void NaimiTrehelSite::regenerate_token()
 {
+  logger->write("regenerated the token");
   has_token = true;
 }
 

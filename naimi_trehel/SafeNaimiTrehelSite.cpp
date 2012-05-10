@@ -10,6 +10,7 @@
 #define PREDECESSORS "predecessors"
 #define ARE_YOU_BEFORE "are_you_before"
 #define QUEUE_POSITION "queue_position"
+#define CONNECTION "connection"
 
 using namespace std;
 
@@ -46,7 +47,8 @@ void SafeNaimiTrehelSite::awaken()
   NaimiTrehelSite::awaken();
 
   // token holder is at position 0
-  queue_position = 0;
+  if(hasToken())
+    queue_position = 0;
 }
 
 /* OVERRIDES */
@@ -100,6 +102,9 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     mechanism = POLL_PREDECESSORS;
   }
 
+  else if (!s_message.compare(CONNECTION))
+    queue(source);
+
   // check for commit message (confirmation that we are queued up)
   else if(s_message.find(PREDECESSORS) != string::npos)
   {
@@ -121,7 +126,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     check_timer = TIMEOUT;
   }
 
-  else if(s_message.find(ARE_YOU_BEFORE) != string::npos)
+  else if(queue_position != -1 && s_message.find(ARE_YOU_BEFORE) != string::npos)
   {
     int position = message_data.front();
     if(queue_position < position)
@@ -130,7 +135,9 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 
   else if(s_message.find(QUEUE_POSITION) != string::npos)
   {
-    //int position = message_data.front();
+    // read the new position, add to predecessors
+    int position = message_data.front();
+    predecessors[position] = source;
   }
 
   // default !
@@ -209,6 +216,15 @@ void SafeNaimiTrehelSite::liberation()
   predecessors.clear();
   check_timer = -1;
   reply_timer = -1;
+}
+
+void SafeNaimiTrehelSite::send_token(sid_t destination)
+{
+  // standard stuff
+  NaimiTrehelSite::send_token(destination);
+
+  // also reset special 'safe version' attributes
+  queue_position = -1;
 }
 
 
@@ -293,5 +309,9 @@ void SafeNaimiTrehelSite::timeout_reconnect()
     regenerate_token();
   // otherwise return to business as usual
   else
+  {
+    // reconnect to the predecessor with the highest position
+    send(CONNECTION, back(predecessors)->second);
     mechanism = POLL_PREDECESSORS;
+  }
 }
