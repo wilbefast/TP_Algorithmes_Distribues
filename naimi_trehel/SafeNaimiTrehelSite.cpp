@@ -112,7 +112,7 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
   // build a message composed of the list of predecessors
   string temp(PREDECESSORS);
   stringstream oss;
-  oss << temp;
+  oss << temp << ':';
 
   // the first id is that of the token-holder
   for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
