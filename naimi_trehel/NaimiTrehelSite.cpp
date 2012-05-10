@@ -86,6 +86,10 @@ bool NaimiTrehelSite::treat_input(char input)
   // if not check sub-class specific commands
   switch(input)
   {
+    case 'b':
+      broadcast_data("TEST", 1, 1337);
+    break;
+
     // SUPPLICATION
     case KEY_SUPPLICATE:
       cout << "SUPPLICATION" << endl;
@@ -95,15 +99,14 @@ bool NaimiTrehelSite::treat_input(char input)
         logger->write("can't supplicate while in critical section");
       else
         supplication();
-      // consume event
-      return true;
+    break;
 
     // ADD TIME TO CRITICAL SECTION
     case KEY_TIME:
       cout << "TIMER" << endl;
       cs_timer += CS_TIME_INCREMENT;
       logger->write("liberation timer set to %d second(s)", cs_timer/MAX_HERTZ);
-      return true;
+    break;
 
     // LIBERATION
     case KEY_LIBERATE:
@@ -112,13 +115,15 @@ bool NaimiTrehelSite::treat_input(char input)
         liberation();
       else
         logger->write("can't liberate while not in critical section");
-      // consume event
-      return true;
+    break;
 
     default:
-      // don't consume event
+      // event not consumed
       return false;
   }
+
+  // event consumed
+  return true;
 }
 
 /* OVERRIDDEN */

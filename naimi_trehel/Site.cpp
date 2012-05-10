@@ -265,26 +265,24 @@ bool Site::treat_input(char input)
     case KEY_QUIT:
       cout << "QUIT" << endl;
       state = SHUTDOWN;
-      // event consumed
-      return true;
     break;
 
     case KEY_INFO:
       cout << "INFORMATION" << endl;
       print_info();
-      // event consumed
-      return true;
+    break;
 
     case KEY_CLEAR:
       cout << string(30, '\n');
-      // event consumed
-      return true;
+    break;
 
     default:
       // event not consumed
       return false;
-    break;
   }
+
+  // event consumed
+  return true;
 }
 
 void Site::print_info()
@@ -378,13 +376,15 @@ void Site::broadcast(const char* message)
 
 void Site::broadcast_data(const char* header, int argc, ...)
 {
-  // Transform '...' into a va_list structure
-  va_list arguments;
-  va_start(arguments, argc);
-
   // Send data to each peer
   for(sid_list_it i = peers.begin(); i != peers.end(); i++)
+  {
+    // NB - we need to use a different va_list for each peer, as read operations
+    // modify the structure.
+    va_list arguments;
+    va_start(arguments, argc);
     send_data(header, (*i), argc, arguments);
+  }
 }
 
 bool Site::receive(const char* message, sid_t source)

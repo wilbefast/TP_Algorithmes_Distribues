@@ -5,7 +5,7 @@
 #include <string>     // for parsing messages
 
 // pro-tip: use hash-defines to prevent typos from causing problems
-#define ARE_YOU_BEFORE "are_you_before:"
+#define ARE_YOU_BEFORE "are_you_before"
 #define ARE_YOU_ALIVE "are_you_alive"
 #define I_AM_ALIVE "i_am_alive"
 #define PREDECESSORS "predecessors"
@@ -36,13 +36,13 @@ void SafeNaimiTrehelSite::run()
   // send messages at regular intervals
   if(check_timer > 0)
     check_timer--;
-  else
+  else if(check_timer == 0)
     poll();
 
   // wait for replies
   if(reply_timer > 0)
     reply_timer--;
-  else
+  else if(reply_timer == 0)
     timeout();
 }
 
@@ -156,6 +156,10 @@ const char* SafeNaimiTrehelSite::mechanism_to_cstr()
 
 void SafeNaimiTrehelSite::poll()
 {
+  // by default we'll wait for a reply ...
+  check_timer = -1;
+
+  // .. to the message we'll send depending on the mechanism
   switch(mechanism)
   {
     case POLL_PREDECESSORS:
@@ -172,18 +176,8 @@ void SafeNaimiTrehelSite::poll_predecessors()
 {
   // if there are still predecessors left try to contact the next one
   if(!predecessors.empty())
-  {
     send(ARE_YOU_ALIVE, predecessors.back());
-    reply_timer = TIMEOUT;
-  }
-  // if all the predecessors are gone we'll have to reconnect the queue
-  else
-  {
-    // but first, the queue needs to be rebuilt
-    broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
-    reply_timer = 2 * TIMEOUT;
-    mechanism = RECONNECT_QUEUE;
-  }
+  reply_timer = TIMEOUT;
 }
 
 
@@ -191,6 +185,10 @@ void SafeNaimiTrehelSite::poll_predecessors()
 
 void SafeNaimiTrehelSite::timeout()
 {
+  // don't generate multiple timeouts in a row
+  reply_timer = -1;
+
+  // act differently depending on what timed-out
   switch(mechanism)
   {
     case POLL_PREDECESSORS:
@@ -208,6 +206,11 @@ void SafeNaimiTrehelSite::timeout_predecessors()
   // try the next in the queue, discarding the non-responsive one
   if(!predecessors.empty())
     predecessors.pop_back();
-  check_timer = 0;
-  reply_timer = -1;
+  // if all the predecessors are gone we'll have to reconnect the queue
+  else
+  {
+    broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
+    reply_timer = 2 * TIMEOUT;
+    mechanism = RECONNECT_QUEUE;
+  }
 }
