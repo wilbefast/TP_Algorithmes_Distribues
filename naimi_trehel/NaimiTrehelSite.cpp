@@ -46,6 +46,15 @@ void NaimiTrehelSite::awaken()
   }
 }
 
+/* RECOVERY */
+
+void NaimiTrehelSite::regenerate_token()
+{
+  has_token = true;
+}
+
+/* MAIN LOOP */
+
 void NaimiTrehelSite::run()
 {
   // call super-class's generic main loop method
@@ -121,6 +130,7 @@ bool NaimiTrehelSite::treat_input(char input)
   // event consumed
   return true;
 }
+
 
 /* OVERRIDDEN */
 
@@ -231,7 +241,7 @@ void NaimiTrehelSite::supplication()
 
 void NaimiTrehelSite::critical_section()
 {
-  logger->write("I am entering critical section now");
+  logger->write("entered critical section");
 
   // Simulate critical section by waiting for a short duration
   state = WORKING;

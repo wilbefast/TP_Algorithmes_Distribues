@@ -20,6 +20,8 @@ public:
   // creation, destruction
   NaimiTrehelSite();
 protected:
+    // fault recovery
+  void regenerate_token();
   // overrides
   void awaken();
   void run();

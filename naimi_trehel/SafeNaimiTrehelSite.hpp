@@ -2,8 +2,12 @@
 #define SAFENAIMITREHELSITE_HPP_INCLUDED
 
 #include <string>
+#include <map>
 
 #include "NaimiTrehelSite.hpp"
+
+typedef std::map<int, sid_t> sid_map_t;
+typedef sid_map_t::iterator sid_map_it;
 
 class SafeNaimiTrehelSite : public NaimiTrehelSite
 {
@@ -22,6 +26,7 @@ private:
   /* ATTRIBUTES */
 private:
   sid_list_t predecessors;
+  sid_map_t _predecessors;
   int check_timer;
   int reply_timer;
   int queue_position;
@@ -48,6 +53,7 @@ private:
   // fault detection replies
   void timeout();
   void timeout_predecessors();
+  void timeout_reconnect();
 };
 
 #endif // SAFENAIMITREHELSITE_HPP_INCLUDED

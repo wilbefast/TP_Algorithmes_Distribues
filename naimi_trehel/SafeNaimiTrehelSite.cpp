@@ -18,6 +18,7 @@ using namespace std;
 SafeNaimiTrehelSite::SafeNaimiTrehelSite() :
 NaimiTrehelSite(),
 predecessors(),
+_predecessors(),
 check_timer(-1),
 reply_timer(-1),
 queue_position(-1),
@@ -79,11 +80,19 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   // check for commit message (confirmation that we are queued up)
   else if(s_message.find(PREDECESSORS) != string::npos)
   {
+    logger->write("queued after Site %d", source);
+
     // the first id is that of the token-holder
-    for(data_list_it i = message_data.begin(); i != message_data.end(); i++)
-      predecessors.push_back((*i));
+    int position = 0;
+    for(data_list_it it = message_data.begin(); it != message_data.end(); it++)
+    {
+      predecessors.push_back((*it));
+      _predecessors[position] = (*it);
+      position++;
+    }
     // the last id is the predecessor of the source of the message
     predecessors.push_back(source);
+    _predecessors[position] = source;
     queue_position = predecessors.size();
     // start checking the predecessor at regular intervals
     check_timer = TIMEOUT;
@@ -94,6 +103,11 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     int position = message_data.front();
     if(queue_position < position)
       send_data(QUEUE_POSITION, source, 1, queue_position);
+  }
+
+  else if(s_message.find(QUEUE_POSITION) != string::npos)
+  {
+    int position = message_data.front();
   }
 
   // default !
@@ -136,6 +150,11 @@ void SafeNaimiTrehelSite::print_info()
     cout << (*i) << " ";
   cout << "]" << endl;
 
+  cout << "_predecessors = [ ";
+  for(sid_map_it i = _predecessors.begin(); i != _predecessors.end(); i++)
+    cout << "(" << i->second << "@" << i->first << ") ";
+  cout << "]" << endl;
+
   // timers
   cout << "check_timer = " << check_timer << endl;
   cout << "reply_timer = " << reply_timer << endl;
@@ -169,6 +188,7 @@ void SafeNaimiTrehelSite::liberation()
 
   // also clear predecessors and stop polling
   predecessors.clear();
+  _predecessors.clear();
   check_timer = -1;
   reply_timer = -1;
 }
@@ -218,6 +238,11 @@ void SafeNaimiTrehelSite::timeout()
       timeout_predecessors();
     break;
 
+    case RECONNECT_QUEUE:
+      // time's up for reconnecting the queue
+      timeout_reconnect();
+    break;
+
     default:
     break;
   }
@@ -235,8 +260,19 @@ void SafeNaimiTrehelSite::timeout_predecessors()
   // if all the predecessors are gone we'll have to reconnect the queue
   else
   {
+    logger->write("no more predecessors, attempting to reconnect");
     broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
     reply_timer = 2 * TIMEOUT;
     mechanism = RECONNECT_QUEUE;
   }
+}
+
+void SafeNaimiTrehelSite::timeout_reconnect()
+{
+  // if nobody replied regenerate the token
+  if(predecessors.empty())
+    regenerate_token();
+  // otherwise return to business as usual
+  else
+    mechanism = POLL_PREDECESSORS;
 }
