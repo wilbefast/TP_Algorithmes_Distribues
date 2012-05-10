@@ -13,12 +13,26 @@
 
 using namespace std;
 
+/* FUNCTIONS */
+
+sid_map_it back(sid_map_t& map)
+{
+  sid_map_it result = map.end();
+  result--;
+  return result;
+}
+
+void pop_back(sid_map_t& map)
+{
+  sid_map_it b = back(map);
+  map.erase(b);
+}
+
 /* CREATION, DESTRUCTION */
 
 SafeNaimiTrehelSite::SafeNaimiTrehelSite() :
 NaimiTrehelSite(),
 predecessors(),
-_predecessors(),
 check_timer(-1),
 reply_timer(-1),
 queue_position(-1),
@@ -62,7 +76,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   if(!s_message.compare(ARE_YOU_ALIVE))
   {
     send(I_AM_ALIVE, source);
-    if(source != next)
+    if(next != -1 && source != next)
     {
       logger->write("successor %d seems to have crashed", next);
       next = source;
@@ -86,14 +100,12 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     int position = 0;
     for(data_list_it it = message_data.begin(); it != message_data.end(); it++)
     {
-      predecessors.push_back((*it));
-      _predecessors[position] = (*it);
+      predecessors[position] = (*it);
       position++;
     }
     // the last id is the predecessor of the source of the message
-    predecessors.push_back(source);
-    _predecessors[position] = source;
-    queue_position = predecessors.size();
+    predecessors[position] = source;
+    queue_position = position + 1;
     // start checking the predecessor at regular intervals
     check_timer = TIMEOUT;
   }
@@ -107,7 +119,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 
   else if(s_message.find(QUEUE_POSITION) != string::npos)
   {
-    int position = message_data.front();
+    //int position = message_data.front();
   }
 
   // default !
@@ -132,8 +144,8 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
   oss << temp << ':';
 
   // the first id is that of the token-holder
-  for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
-    oss << (*i) << ',';
+  for(sid_map_it i = predecessors.begin(); i != predecessors.end(); i++)
+    oss << i->second << ',';
 
   // inform the queued site that it is now behind this site in the queue
   send(oss.str().c_str(), _next);
@@ -146,13 +158,8 @@ void SafeNaimiTrehelSite::print_info()
 
   // Site predecessors
   cout << "predecessors = [ ";
-  for(sid_list_it i = predecessors.begin(); i != predecessors.end(); i++)
-    cout << (*i) << " ";
-  cout << "]" << endl;
-
-  cout << "_predecessors = [ ";
-  for(sid_map_it i = _predecessors.begin(); i != _predecessors.end(); i++)
-    cout << "(" << i->second << "@" << i->first << ") ";
+  for(sid_map_it i = predecessors.begin(); i != predecessors.end(); i++)
+    cout << "(" << i->second << " @ " << i->first << ") ";
   cout << "]" << endl;
 
   // timers
@@ -188,7 +195,6 @@ void SafeNaimiTrehelSite::liberation()
 
   // also clear predecessors and stop polling
   predecessors.clear();
-  _predecessors.clear();
   check_timer = -1;
   reply_timer = -1;
 }
@@ -218,7 +224,7 @@ void SafeNaimiTrehelSite::poll_predecessors()
 {
   // if there are still predecessors left try to contact the next one
   if(!predecessors.empty())
-    send(ARE_YOU_ALIVE, predecessors.back());
+    send(ARE_YOU_ALIVE, back(predecessors)->second);
   reply_timer = TIMEOUT;
 }
 
@@ -253,8 +259,9 @@ void SafeNaimiTrehelSite::timeout_predecessors()
   // immediately try the next in the queue, discarding the non-responsive one
   if(!predecessors.empty())
   {
-    logger->write("predecessor %d seems to have crashed", predecessors.back());
-    predecessors.pop_back();
+    logger->write("predecessor %d seems to have crashed",
+                  back(predecessors)->second);
+    pop_back(predecessors);
     check_timer = 0;
   }
   // if all the predecessors are gone we'll have to reconnect the queue

@@ -8,6 +8,8 @@
 
 typedef std::map<int, sid_t> sid_map_t;
 typedef sid_map_t::iterator sid_map_it;
+sid_map_it back(sid_map_t& map);
+void pop_back(sid_map_t& map);
 
 class SafeNaimiTrehelSite : public NaimiTrehelSite
 {
@@ -25,8 +27,7 @@ private:
 
   /* ATTRIBUTES */
 private:
-  sid_list_t predecessors;
-  sid_map_t _predecessors;
+  sid_map_t predecessors;
   int check_timer;
   int reply_timer;
   int queue_position;
