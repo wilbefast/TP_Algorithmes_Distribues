@@ -364,7 +364,7 @@ void Site::send(const char* message, sid_t destination)
 
   /* Send packet to destination */
   SDLNet_UDP_Send(socket, -1, packet);
-  logger->write("sent \"%s\" to Site %d", message, destination);
+  //logger->write("sent \"%s\" to Site %d", message, destination);
 }
 
 void Site::broadcast(const char* message)
@@ -389,7 +389,7 @@ void Site::broadcast_data(const char* header, int argc, ...)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  logger->write("received \"%s\" from Site %d", message, source);
+  //logger->write("received \"%s\" from Site %d", message, source);
 
   // Create a string object for easy manipulation
   string s_message(message);

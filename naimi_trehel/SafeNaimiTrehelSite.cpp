@@ -62,7 +62,10 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
   {
     send(I_AM_ALIVE, source);
     if(source != next)
-      source = next;
+    {
+      logger->write("successor %d seems to have crashed", next);
+      next = source;
+    }
   }
 
   else if(!s_message.compare(I_AM_ALIVE))
@@ -225,6 +228,7 @@ void SafeNaimiTrehelSite::timeout_predecessors()
   // immediately try the next in the queue, discarding the non-responsive one
   if(!predecessors.empty())
   {
+    logger->write("predecessor %d seems to have crashed", predecessors.back());
     predecessors.pop_back();
     check_timer = 0;
   }
