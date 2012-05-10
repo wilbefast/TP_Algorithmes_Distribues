@@ -355,7 +355,7 @@ void Site::send_data(const char* header, sid_t destination, int argc,
 
 void Site::send(const char* message, sid_t destination)
 {
-  logger->write("\tsending \"%s\" to Site %d", message, destination);
+  //logger->write("sending \"%s\" to Site %d", message, destination);
 
   /* Build packet */
   unsigned int length = strlen(message) + 1;
@@ -390,7 +390,7 @@ void Site::broadcast_data(const char* header, int argc, ...)
 
 bool Site::receive(const char* message, sid_t source)
 {
-  logger->write("\treceived \"%s\" from Site %d", message, source);
+  //logger->write("received \"%s\" from Site %d", message, source);
 
   // Create a string object for easy manipulation
   string s_message(message);

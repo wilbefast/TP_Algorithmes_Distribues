@@ -23,10 +23,9 @@ protected:
     // fault recovery
   void regenerate_token();
   // overrides
-  void awaken();
+  virtual void awaken();
   void run();
   bool treat_input(char input);
-  // overriden
   virtual bool receive(const char* message, sid_t source);
   void receive_hello(sid_t source);
   virtual void queue(sid_t _next);

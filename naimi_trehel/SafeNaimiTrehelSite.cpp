@@ -40,6 +40,15 @@ mechanism(POLL_PREDECESSORS)
 {
 }
 
+void SafeNaimiTrehelSite::awaken()
+{
+  // standard stuff
+  NaimiTrehelSite::awaken();
+
+  // token holder is at position 0
+  queue_position = 0;
+}
+
 /* OVERRIDES */
 
 void SafeNaimiTrehelSite::run()
@@ -98,10 +107,12 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
 
     // the first id is that of the token-holder
     int position = 0;
-    for(data_list_it it = message_data.begin(); it != message_data.end(); it++)
+    data_list_it it = message_data.begin();
+    while(it != message_data.end())
     {
+      position = (*it);
+      it++;
       predecessors[position] = (*it);
-      position++;
     }
     // the last id is the predecessor of the source of the message
     predecessors[position] = source;
@@ -140,15 +151,16 @@ void SafeNaimiTrehelSite::queue(sid_t _next)
 
   // build a message composed of the list of predecessors
   string temp(PREDECESSORS);
-  stringstream oss;
-  oss << temp << ':';
+  stringstream s;
+  s << temp << ':';
 
   // the first id is that of the token-holder
   for(sid_map_it i = predecessors.begin(); i != predecessors.end(); i++)
-    oss << i->second << ',';
+    // numbers are alternating position and site id
+    s << i->first << ',' << i->second << ',';
 
   // inform the queued site that it is now behind this site in the queue
-  send(oss.str().c_str(), _next);
+  send(s.str().c_str(), _next);
 }
 
 void SafeNaimiTrehelSite::print_info()
