@@ -118,6 +118,8 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
       position = (*it);
       it++;
       predecessors[position] = (*it);
+      logger->write("I believe Site %d is at position %d", (*it), position);
+      it++;
 
       // position of source is one more than its last predecessor
       position++;
@@ -216,6 +218,7 @@ void SafeNaimiTrehelSite::liberation()
   NaimiTrehelSite::liberation();
 
   // also clear predecessors and stop polling
+  mechanism = POLL_PREDECESSORS;
   predecessors.clear();
   check_timer = -1;
   reply_timer = -1;
@@ -228,6 +231,18 @@ void SafeNaimiTrehelSite::send_token(sid_t destination)
 
   // also reset special 'safe version' attributes
   queue_position = -1;
+}
+
+void SafeNaimiTrehelSite::receive_token()
+{
+  // standard stuff
+  NaimiTrehelSite::receive_token();
+
+  // extended algorithm
+  mechanism = POLL_PREDECESSORS;
+  predecessors.clear();
+  check_timer = -1;
+  reply_timer = -1;
 }
 
 
@@ -266,6 +281,9 @@ void SafeNaimiTrehelSite::timeout()
 {
   // don't generate multiple timeouts in a row
   reply_timer = -1;
+
+  if(state != REQUESTING)
+    return;
 
   // act differently depending on what timed-out
   switch(mechanism)

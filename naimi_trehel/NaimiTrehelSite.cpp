@@ -56,7 +56,7 @@ void NaimiTrehelSite::awaken()
 void NaimiTrehelSite::regenerate_token()
 {
   logger->write("regenerated the token");
-  has_token = true;
+  receive_token();
 }
 
 /* MAIN LOOP */
@@ -167,7 +167,7 @@ bool NaimiTrehelSite::receive(const char* message, sid_t source)
   else if(!s_message.compare(TOKEN))
     // the presence of the token will be detected in the main 'run' loop and
     // so if requesting the site will enter the critical section
-    has_token = true;
+    receive_token();
 
   // request forwarded on from another site
   else if(s_message.find(FORWARD_REQUEST_OF) != string::npos)
@@ -300,4 +300,9 @@ void NaimiTrehelSite::send_token(sid_t destination)
 {
   has_token = false;
   send(TOKEN, destination);
+}
+
+void NaimiTrehelSite::receive_token()
+{
+  has_token = true;
 }

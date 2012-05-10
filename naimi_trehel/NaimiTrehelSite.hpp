@@ -23,7 +23,7 @@ public:
   bool hasToken() const;
 protected:
     // fault recovery
-  void regenerate_token();
+  virtual void regenerate_token();
   // overrides
   virtual void awaken();
   void run();
@@ -36,6 +36,7 @@ protected:
   virtual void critical_section();
   virtual void liberation();
   virtual void send_token(sid_t destination);
+  virtual void receive_token();
 private:
   void supplication();
   void receive_request(sid_t source);

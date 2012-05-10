@@ -1,0 +1,326 @@
+\documentclass[a4paper,french,towsides,10pt]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\begin{document}
+
+William J. DYCE                                                                
+Remerciements :
+Nous remercions notre encadrant,  Monsieur Rodolphe Giroudeau pour son aide et ses conseils tout au long du projet, mais également pour sa disponibilité.
+Enfin, nous vous remercions de lire ce rapport et espérons que celui-ci saura susciter votre intérêt.
+
+
+
+Table des matières
+1 Introduction                                                                                                                                       4
+  1.1 Présentation de l’algorithme Naimi-Trehel . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+  1.2 Notre contribution  . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+  1.3 Document de recherche . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+  1.4 Etat de l’art  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+2 Conception et organisation                                                                                                          7
+  2.1 Cahier des charges technique  . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . 7
+  2.2 Méthodes de travail  . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+      2.2.1 Distribution des taches  . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . 8
+      2.2.2 Ressources utilisées  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+      2.2.3 Communication  . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+  2.3 Diagramme de Gantt . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+  2.4 Analyse UML . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+3 Réalisation                                                                                                                                         11
+3.1 L’algorithme de Naimi-Trehel de base  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.1 La tolérance aux pannes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.1 L’algorithme de Naimi-Trehel de base étendu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+3.1 Difficultés rencontrées . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+4 Conclusion                                                                                                                                         14
+  4.1 Résultat final . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+  4.2 Expériences apportées . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+  4.3 Perspectives du projet .  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+
+Bibliographie                                                                                                                                       16
+
+
+
+
+
+
+
+
+Chapitre 1
+
+Introduction
+
+L’objet de ce rapport est de vous présenter l’ensemble du déroulement du projet appelé : "Naimi-Trehel Enhanced, un algorithme équitable d’exclusion mutuelle tolérant les fautes". Ce projet s’inscrit dans le cadre de l’UE algorithme distribués du second semestre du Master 1 Informatique de l’Université Montpellier 2.
+Il a été réalisé par l’équipe composée de :
+– M. William J. Dyce, étudiant en Master 1 Imagina à l’Université Montpellier 2.
+– M. Amine M. Elkhalsi, étudiant en Master 1 Imagina à l’Université Montpellier 2.
+
+L’encadrant universitaire était l’enseignant-chercheur : M. Rodolphe Giroudeau.
+Dans ce chapitre, nous allons dans un premier temps vous faire une présentation de l’algorithme de Naimi-Trehel. Puis nous parlerons de notre rôle dans ce projet. Enfin, nous aborderons l’article de recherche qui nous a servi d’appui pour la réalisation du projet.
+
+1.1 Présentation de l’algorithme de Naimi-Trehel
+	L’Algorithme de Naimi-Trehel est un algorithme distribué permettant de gérer l’accès à une ressource à une seule entrée.
+Ce dernier se base sur n sites [S0, S1, S2, …, Sn-1] qui vont vouloir chacun, à des moments donnés, accéder à une ressource (ressource système, programme informatique…etc) qui ne peut être utilisée par deux sites en même temps.
+Afin de gérer l’accès concurrent et l’exclusion mutuelle, celui-ci utilise un jeton en posant comme règle simple.
+Seul celui qui possède le jeton peut entrer en section critique.
+Un seul jeton existe sur tout le réseau, pas de décuplement.
+Bien entendu, afin que tout le monde puisse accéder à la ressource, les sites devront pouvoir se passer le jeton entre eux en fonction des demandes.
+
+
+
+
+1.2 Notre contribution
+En premier lieu, pour des raisons d’organisation et de praticité, nous avons commencé par décider des technologies à employer pour la mise en œuvre du projet.
+En second lieu, nous avons établi la base du projet en commençant par implémenter les fonctionnalités de base que tout algorithme distribué se doit d’avoir autour de lui.
+Plus précisément, cette phase consistait en la création des classes les plus importantes avec les méthodes de base permettant entres autres de créer des sites, de les doter de la capacité de communiquer en envoyant et en recevant des messages dans le réseau. Bien entendu l’environnement de travail ainsi établi ne pouvait suffire comme tél et il fallait l’adapter au fur et à mesure du développement.
+En troisième lieu, nous avons implémenté l’algorithme de Naimi-Trehel de base.
+Enfin, nous avons implémenté l’algorithme de Naimi-Trehel amélioré qui tolère les pannes.
+Nous avons cependant rencontré quelques difficultés tout au long de ce projet ; avant tout des difficultés au niveau des choix des techniques et technologies à employer, mais aussi un petit problème au niveau de l’organisation du travail.
+Toutes ces difficultés et phases de développement citées plus haut seront décrites plus en détail dans le chapitre 3 qui traite la réalisation du projet.
+1.3 Document de recherche
+La nature même de ce projet prenait racine d’un document de recherche.
+Ce dernier a été réalisé par Julien Sopena, Luciana Arantes, et Pierre Sens et a été rédigé dans le but de proposer une amélioration à l’algorithme de Naimi-Trehel de base. Il ne se contentait pas uniquement de proposer un algorithme mais également d’analyser certains autres existants.
+Cette partie de l’article nous a permis d’établir notre état de l’art pour notre projet.
+Résumé de l’article :
+Une première partie est consacrée à une petite spécification des routines utilisées pour construire le modèle proposé par les auteurs. A savoir le système est supposé asynchrone, ce qui veut dire que les délais d'acheminement des messages et la vitesse relative entre les différents sites sont bornés par des valeurs connues. Ce système distribué est composé de N sites = {S, S2, …, Sn} reliés par un réseau complétement maillé.
+Ensuite deux parties entières de l’article sont dédiés respectivement à l’étude de l’algorithme de Naimi-Trehel puis de l’extension de ce dernier que nous ne détaillerons pas ici car cela revient à décrire quelque peu notre travail. Chose qui se faite en profondeur dans le chapitre 3.
+
+1.4 Etat de l’art
+Dans cette section nous présentons brièvement les travaux existants autour de l’extension de l’algorithme de Naimi-Trehel ainsi décrite dans le document de recherche :
+Plusieurs auteurs ont défini des extensions tolérantes aux fautes des algorithmes à jeton. Nishio et al. proposent une extension fiable de l'algorithme à diffusion de Suzuki-Kasami.
+Pour régénérer le jeton, leur algorithme nécessite un acquittement de tous les sites. Ainsi, la défaillance d'un seul nœud retarde la régénération du jeton jusqu'à son retour. Afin d'avoir un recouvrement plus rapide Manivannan et Singhal présentent un nouvel algorithme dans lequel seuls les nœuds non fautifs doivent répondre. Cependant, leur approche n'est pas équitable devant les fautes car ils supposent que deux sites particuliers ne peuvent pas être en panne : le dernier nœud x ayant exécuté la section critique et celui à qui x à transmis le jeton.
+Chang et al. présentent un algorithme tolérant aux fautes basé sur un arbre de requête.
+La fiabilisation de l'arbre est assurée par l'introduction de chemins redondants et par l'utilisation d'un mécanisme d'élection. Cependant, l'ajout des chemins alternatifs et surtout le mécanisme de prévention de cycle augmentent significativement le coût de l'algorithme.
+Naimi et Tréhel introduisent une version fiable de leur algorithme. En absence de faute, l'algorithme initial n'est pas modifié. En revanche, le recouvrement des fautes est particulièrement coûteux en termes de messages et de latence.
+Plus récemment, Mueller a proposé aussi une version fiable de l'algorithme de Naimi-Tréhel sans utiliser de diffusions. Sa solution repose sur un anneau reliant tous les nœuds.
+Les inconvénients d'une telle approche sont sa faible extensibilité et, plus encore, son impossibilité à gérer plusieurs fautes simultanées.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chapitre 2
+
+Conception et organisation
+
+2.1 Cahier des charges technique
+En nous basant sur les recherches préalables, nous avons définis une liste des fonctionnalités que devait implémenter notre application :
+Permettre à chaque site de :
+Diffuser un message sur tout le système.
+Envoyer un message à un destinataire unique et, dans le cas d’un transfert de message, à partir d’une source unique.
+Recevoir un message.
+Envoyer un type de message correspondant à chaque type d’information qu’un site souhaite transmettre.
+Traiter les messages reçus en fonction de leurs différentes natures, quelques exemples :
+Un message Hello reçu à partir d’un site i indique qu’un nouveau site i est dans le réseau et qu’il faut donc l’ajouter à sa liste.
+Un message Request venant d’un site j indique que j souhaite avoir la section critique.
+Un message I\_Am\_Alive indique que le site est toujours en cours de fonctionnement.
+Demander la section critique en appuyant juste sur une touche au clavier.
+Une fois en section critique, un site doit continuer à traiter les messages reçus et ainsi construire la file d’attente des demandes, et aussi libérer la section critique lorsqu’il a fini.
+Détecter les pannes :
+Un système d’accusé de réception pour assurer aux sites la livraison de leurs messages et surtout pour détecter les pannes.
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+De traiter les pannes :
+Reconstruction de l’arborescence de l’arbre et de la file d’attente.
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+2.2 Méthodes de travail
+	Afin de garder une bonne organisation durant tout le projet, nous avons définis des méthodes de travail.
+2.2.1 Distribution des tâches
+	Nous avons travaillé en binômes, ce qui a constitué une grande difficulté dans la répartition des tâches étant donné la nature du projet.
+William J. DYCE : Réalisation des fonctionnalités de base de chaque site (envoi/diffusion/réception des messages, entrée dans la section critique…). Implémentation de l’algorithme de Naimi-Trehel. Implémentation de l’extension de l’algorithme de Naimi-Trehel.
+Amine M. ELKHALSI : Aide à l’amélioration des fonctionnalités de base de chaque site. Implémentation de l’algorithme de Naimi-Trehel. Rédaction du rapport, réalisation du diagramme de Gantt et du diagramme UML.
+
+2.2.2 Ressources utilisées
+Une liste des ressources à utiliser a été dressée, afin de maitriser notre environnement de travail.
+Nous avons développé sur nos ordinateurs personnels, sous le système d’exploitation Linux essentiellement.
+Les programmes utilisés sont les suivants :
+Code::Blocks : pour le développement en langage C++.
+La librairie SDL et SDL\_Net : pour la communication entre les sites.
+Git : pour la gestion des versions de notre code C++.
+Gource : pour la visualisation graphique de l’avancement du projet.
+Meld Tool : pour la gestion des conflits lors de certains fusionnements des versions du code.
+PowerAMC 15 : pour la réalisation du diagramme des classes en UML.
+LaTeX : Pour la mise en page du rapport.
+
+
+
+
+
+2.2.3 Communication
+La communication est un point primordial pour la bonne conduite d’un projet en équipe.
+Nous nous sommes réunis deux fois pour travailler ensemble.
+La première réunion a consisté à l’établissement d’un terrain d’entente sur les tâches à effectuer et les choix des technologies à employer.
+Lors de la deuxième réunion, nous avons programmé ensemble afin de diviser dynamiquement les tâches tout en travaillant. Cela a été facilité par l’utilisation de Git.
+Communication à distance :
+Les deux grands moyens de communication les plus employés ont été :
+Le téléphone : lors des besoins d’urgence car c’est le moyen le plus rapide.
+Git : On a pu certaines fois communiquer grâce à Git qui permettait de posait directement des commentaires sur les versions de code postées par chacun.
+
+2.3 Diagramme de Gantt
+Voici le diagramme de Gantt de notre projet correspondant à la répartition des tâches effectuées dans le temps.
+
+Fig. 1 – Diagramme de Gantt
+
+
+
+
+
+2.4 Analyse UML
+Voici notre diagramme UML des classes :
+
+Fig. 2 – Diagramme des classes
+
+
+
+
+
+
+
+
+
+Chapitre 3
+
+Réalisation
+
+3.1 L’algorithme de Naimi-Trehel de base
+Dans cette partie nous allons détailler les étapes de conception et de réalisation de notre travail.
+Pour implémenter l’algorithme, nous utilisons deux structures de données importantes :
+Une file d’attente distribuée permettant de mémoriser les demandes des sites désirant du jeton lorsque celles-ci ne peuvent être traitées dans l’immédiat à cause de l’occupation de la section critique. Chaque site P a donc une variable suivant(P) qui pointe vers le prochain site en tête de la file d’attente de la SC.
+Un arbre logique qui a pour racine le site possédant le jeton. Lorsqu’un site demande la section critique, s’il n’est pas la racine, il l’envoie à son père. Puis la demande passe de père en père jusqu’à atteindre la racine. Le chemin permettant à un nouveau site demandeur de la section critique constitue la deuxième structure de donnée utilisée.
+A savoir, chaque site possède 4 grandes facultés :
+Envoyer un message de type :
+<HELLO> lorsqu’un site se connecte pour que les autres puissent l’ajouter à leur liste.
+<REQUEST> pour demander la section critique, ou transmettre une demande.
+<TOKEN> pour passer le jeton au dernier site demandeur une fois la SC libérée.
+Recevoir un message de type :
+<HELLO> et ajoute ensuite le site l’expéditeur à sa liste des sites.
+<REQUEST> pour traiter une demande si le destinataire est la racine ou la transmettre sinon.
+<TOKEN> pour avoir l’autorisation de rentrer en section critique.
+Entrer en section critique.
+Libérer la section critique.
+Afin de simuler l’entrée d’un site dans la section critique et sa libération, nous avons choisi de mettre ce dernier en attente d’un nombre de secondes aléatoires, néanmoins limité, puis de libérer la SC à la fin du temps imparti.
+Nous procurons également la possibilité à l’utilisateur d’un site de demander la section critique en appuyant sur la touche ‘S’ de son clavier, mais aussi la possibilité de quitter le système en appuyant sur la touche ‘Q’.
+
+Déroulement de l’algorithme :
+Soient 4 sites donnés S0, S1, S2 et S3 qui se connecte au système selon l’ordre de leurs indices.
+
+A l’initialisation, S0, étant le premier connecté, devient la racine, le seul à ne pas avoir de père. Tous les autres sites l’auront comme père. Ce qui nous donne le schéma de la figure 3.1.
+
+Fig 3.1
+Lorsque S0 demande la ressource, celui-ci rentre immédiatement en section critique étant donné qu’il est la racine et qu’il a par conséquent le jeton.
+Ensuite, supposons que S1 demande la section critique, il deviendra la nouvelle racine :
+
+Fig 3.2
+Si S0 est toujours en demande, il ajoutera S1 à sa file d’attente. Dès qu’il libérera la section critique, ce dernier vérifie s’il y a un site dans son pointeur suivant(S0), il trouvera qu’il correspond à S1. Il envoie alors le jeton à S1 qui rentre immédiatement en section critique.
+
+
+
+Maintenant, afin de gérer les demandes multiples nous procédons de la façon suivante :
+Supposons que l’on soit dans le cas suivant :
+S1 est toujours en section critique, S2 demande la ressource. Il envoie donc sa demande à père(S2) qui correspond à S0.
+Deux cas possible se présentent :
+Si S0 n’est pas lui-même en attente de la ressource, il transfert la demande de S2 à père(S0) qui correspond à S1.
+Par contre, si S0 est lui-même en attente de la section critique, ce qui revient à dire qu’il est la nouvelle racine et qu’on retrouve le schéma de la figure 3.1 alors la demande de S2 va être stockée dans suivant(S0), et S2 devient donc la nouvelle racine. Maintenant S3 fait de même. Sa demande sera orientée via S0 vers S2, et S3 devient la nouvelle racine ce qui nous donne donc le schéma suivant :
+
+Fig 3.3
+Enfin, dès que S1 va libérer la ressource, il va envoyer le jeton à suivant(S1), donc S0. Une fois que S0 libère la SC il la transmet à son suivant(S0), donc S2 et enfin même chose avec S3.
+C’est donc ainsi qu’on gère les demandes multiples dans notre programme, ce qui fait qu’une seule variable suivant(P) sur chaque site P suffit à gérer la file d’attente.
+Enfin, grâce aux primitives de SDL\_Net, nous avons pu bénéficier d’une méthode Run qui propre à chaque site et qui tourne infiniment en tâche de fond. Cette dernière se base une variable State qui est locale à chaque site et qui indique à tout moment l’état du site. De cette façon, dès que State indique par exemple l’état « en attente de la SC », cette méthode se met en attente du jeton, dès que le site obtient le jeton, c’est cette même méthode qui fera rentrer le site en section critique en appelant la méthode appropriée.
+
+
+3.2 La tolérance aux pannes
+3.3 L’algorithme de Naimi-Trehel étendu
+3.4 Difficultés rencontrées
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chapitre 4
+
+Conclusion
+
+Suite à la réalisation de l’application, nous allons vous présenter un bilan général sur le projet. Nous allons aborder :
+ Le comparatif entre les fonctionnalités du produit final par rapport à celles définit dans le cahier des charges.
+Les connaissances que nous avons acquises lors de ce projet.
+Les perspectives possibles de notre application
+
+4.1 Résultat final
+Ainsi l’algorithme de Naimi-Trehel comporte les fonctionnalités suivantes :
+Plusieurs sites se connectent et communiquent dans un système partagé où ils peuvent partager un point d’accès à une même ressource.
+Plusieurs sites peuvent faire des demandes de la ressource en même temps ; l’exclusion mutuelle est assurée.
+Un site peut très bien tomber en panne, cela ne gênera pas le système puisque qu’il se reconstruit tout seul en cas de problème.
+Ainsi, notre application correspond au cahier des charges.
+4.2 Expériences apportées
+Ce projet nous a beaucoup apporté que ce soit sur le plan humain ou sur le plan technique, il nous a notamment appris :
+La difficulté de travailler en binôme sur un même code nous a obligé d’utiliser certains outils afin de faciliter la tâche et surtout nous apprendre à gérer le travail à deux
+Nous avons découvert la librairie SDL\_Net ce qui constitue un important acquis dans le cadre de notre formation.
+L’expérience même d’avoir réalisé un algorithme distribué a constitué un approfondissement dans les connaissances en réseau.
+Une première vraie expérience pratique du monde des algorithmes distribués.
+
+
+4.3 Perspectives du projet
+Les améliorations éventuelles que nous pourrons encore ajouter à l’algorithme sont :
+La mise en place d’une vraie ressource afin d’exploiter l’algorithme dans une application, un jeu vidéo massivement multi-joueurs en ligne par exemple, qui a réellement besoin de notre algorithme.
+La complexité de l’algorithme pourrait être améliorée en modifiant certaines primitives des sous-algorithmes traitant les diverses fonctionnalités de l’algorithme lui-même.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bibliographie
+
+Liste des sites internet qui nous ont aidés dans l’élaboration de notre projet :
+http://www.siteduzero.fr/ : pour tous les tutoriels C++, SDL et SDL\_Net.
+https://github.com/ : le site du gestionnaire de versions décentralisé pour gérer nos codes.
+http://www.libsdl.org/projects/SDL\_net/docs/index.html : la documentation de SDL\_Net.
+
+Le document de recherche que nous avons étudié :
+http://regal.lip6.fr/IMG/pdf/Europar05Mutex.pdf : l’article décrivant l’extension de l’algorithme de Naimi-Trehel.
+
+
+\end{document}
