@@ -17,14 +17,14 @@ owner(_owner)
 void SiteLogger::write(const char* format, ...)
 {
   // get the time
-  static struct tm* current;
+  static struct tm* calendar;
 	static time_t now;
 	time(&now);
-	current = localtime(&now);
+	calendar = localtime(&now);
 
   // add headers depending on the time and Site id
   printf("%i:%i:%i - Site %d: '",
-    current->tm_hour, current->tm_min, current->tm_sec, owner->getId());
+    calendar->tm_hour, calendar->tm_min, calendar->tm_sec, owner->getId());
 
   // print the rest of the message
   va_list args;

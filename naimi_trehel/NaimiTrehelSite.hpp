@@ -29,11 +29,12 @@ protected:
   void receive_hello(sid_t source);
   virtual void queue(sid_t _next);
   virtual void print_info();
+  // main methods
+  virtual void critical_section();
+  virtual void liberation();
 private:
   // subroutines
   void supplication();
-  void critical_section();
-  void liberation();
   void receive_request(sid_t source);
   void send_token(sid_t destination);
 };

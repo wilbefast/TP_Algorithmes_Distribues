@@ -9,7 +9,7 @@ class SafeNaimiTrehelSite : public NaimiTrehelSite
 {
   /* CONSTANTS */
 private:
-  static const int TIMEOUT = MAX_HERTZ; // maximum latency = 1 second
+  static const int TIMEOUT = 3*MAX_HERTZ; // maximum latency = 3 seconds
 
   /* NESTING */
 private:
@@ -37,7 +37,8 @@ protected:
   bool receive(const char* message, sid_t source);
   void queue(sid_t _next);
   void print_info();
-
+  // main methdods
+  void liberation();
 private:
   // subroutines
   const char* mechanism_to_cstr();

@@ -5,10 +5,11 @@
 #include <string>     // for parsing messages
 
 // pro-tip: use hash-defines to prevent typos from causing problems
-#define ARE_YOU_BEFORE "are_you_before"
 #define ARE_YOU_ALIVE "are_you_alive"
 #define I_AM_ALIVE "i_am_alive"
 #define PREDECESSORS "predecessors"
+#define ARE_YOU_BEFORE "are_you_before"
+#define QUEUE_POSITION "queue_position"
 
 using namespace std;
 
@@ -69,6 +70,7 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     // check cleared, check again shortly
     check_timer = TIMEOUT;
     reply_timer = -1;
+    mechanism = POLL_PREDECESSORS;
   }
 
   // check for commit message (confirmation that we are queued up)
@@ -84,8 +86,12 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
     check_timer = TIMEOUT;
   }
 
-  else if(s_message.find(ARE_YOU_BEFORE))
-    ;
+  else if(s_message.find(ARE_YOU_BEFORE) != string::npos)
+  {
+    int position = message_data.front();
+    if(queue_position < position)
+      send_data(QUEUE_POSITION, source, 1, queue_position);
+  }
 
   // default !
   else
@@ -151,6 +157,19 @@ const char* SafeNaimiTrehelSite::mechanism_to_cstr()
   }
 }
 
+/* MAIN METHODS */
+
+void SafeNaimiTrehelSite::liberation()
+{
+  // standard liberation procedure
+  NaimiTrehelSite::liberation();
+
+  // also clear predecessors and stop polling
+  predecessors.clear();
+  check_timer = -1;
+  reply_timer = -1;
+}
+
 
 /* POLLING */
 
@@ -203,9 +222,12 @@ void SafeNaimiTrehelSite::timeout()
 
 void SafeNaimiTrehelSite::timeout_predecessors()
 {
-  // try the next in the queue, discarding the non-responsive one
+  // immediately try the next in the queue, discarding the non-responsive one
   if(!predecessors.empty())
+  {
     predecessors.pop_back();
+    check_timer = 0;
+  }
   // if all the predecessors are gone we'll have to reconnect the queue
   else
   {

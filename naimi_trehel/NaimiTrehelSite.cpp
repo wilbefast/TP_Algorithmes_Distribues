@@ -86,10 +86,6 @@ bool NaimiTrehelSite::treat_input(char input)
   // if not check sub-class specific commands
   switch(input)
   {
-    case 'b':
-      broadcast_data("TEST", 1, 1337);
-    break;
-
     // SUPPLICATION
     case KEY_SUPPLICATE:
       cout << "SUPPLICATION" << endl;
@@ -111,7 +107,7 @@ bool NaimiTrehelSite::treat_input(char input)
     // LIBERATION
     case KEY_LIBERATE:
       cout << "LIBERATION" << endl;
-      if(state == WORKING)
+      if(state == WORKING || state == REQUESTING)
         liberation();
       else
         logger->write("can't liberate while not in critical section");
@@ -243,18 +239,23 @@ void NaimiTrehelSite::critical_section()
 
 void NaimiTrehelSite::liberation()
 {
-  logger->write("I am leaving critical section now");
+  if(state == WORKING)
+  {
+    logger->write("left critical section");
 
-  /* Critical section no longer required */
+    // send token to next in queue
+    if(next != -1)
+    {
+      send_token(next);
+      next = -1;
+    }
+  }
+  else
+    logger->write("renounced claim to critical section");
+
+  // Critical section no longer required
   state = IDLE;
   cs_timer = -1;
-
-  /* Send token to next site in queue */
-  if(next != -1)
-  {
-    send_token(next);
-    next = -1;
-  }
 }
 
 void NaimiTrehelSite::receive_request(sid_t source)
