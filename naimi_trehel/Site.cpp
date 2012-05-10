@@ -299,7 +299,30 @@ void Site::print_info()
   cout << "]" << endl;
 
   // Site state
-  cout << "state = " << state << endl;
+  cout << "state = " << state_to_cstr() << endl;
+}
+
+const char* Site::state_to_cstr()
+{
+  switch(state)
+  {
+    case ASLEEP:
+      return "ASLEEP";
+    case IDLE:
+      return "IDLE";
+    case REQUESTING:
+      return "REQUESTING";
+    case WORKING:
+      return "WORKING";
+    case FAULT_RECOVERY:
+      return "FAULT_RECOVERY";
+    case ERROR:
+      return "ERROR";
+    case SHUTDOWN:
+      return "SHUTDOWN";
+    default:
+      return "UNKNOWN";
+  }
 }
 
 /* COMMUNICATION */

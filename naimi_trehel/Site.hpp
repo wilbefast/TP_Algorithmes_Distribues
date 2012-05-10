@@ -77,6 +77,8 @@ private:
   void wait();
   // communication
   void parse_data(std::string s);
+  // debug
+  const char* state_to_cstr();
 protected:
   // creation, destruction
   virtual void awaken();

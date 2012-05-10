@@ -20,7 +20,7 @@ predecessors(),
 check_timer(-1),
 reply_timer(-1),
 queue_position(-1),
-fault(NONE_DETECTED)
+mechanism(POLL_PREDECESSORS)
 {
 }
 
@@ -32,42 +32,18 @@ void SafeNaimiTrehelSite::run()
   NaimiTrehelSite::run();
 
   // perform additional checks to survive other Sites' crashing
-  if(state == REQUESTING)
-  {
-    // check predecessor at regular intervals
-    if(check_timer > 0)
-      check_timer--;
-    else if (check_timer == 0)
-    {
-      check_timer = -1;
-      if(!predecessors.empty())
-      {
-        // if there are still predecessors left try to contact the next one
-        send(ARE_YOU_ALIVE, predecessors.back());
-        reply_timer = TIMEOUT;
-      }
-      // if all the predecessors are gone we'll have to regenerate the token
-      else
-      {
-        // but first, the queue needs to be rebuilt
-        broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
-        reply_timer = 2 * TIMEOUT;
-      }
 
-    }
-  }
+  // send messages at regular intervals
+  if(check_timer > 0)
+    check_timer--;
+  else
+    poll();
 
-  // wait for predecessor's reply
+  // wait for replies
   if(reply_timer > 0)
     reply_timer--;
-  else if (reply_timer == 0)
-  {
-      // try the next in the queue, discarding the non-responsive one
-      if(!predecessors.empty())
-        predecessors.pop_back();
-      check_timer = 0;
-      reply_timer = -1;
-  }
+  else
+    timeout();
 }
 
 bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
@@ -159,5 +135,79 @@ void SafeNaimiTrehelSite::print_info()
   cout << "queue_position = " << queue_position << endl;
 
   // state of fault-repair we're currently in
-  cout << "fault = " << fault << endl;
+  cout << "mechanism = " << mechanism_to_cstr() << endl;
+}
+
+const char* SafeNaimiTrehelSite::mechanism_to_cstr()
+{
+  switch(mechanism)
+  {
+    case POLL_PREDECESSORS:
+      return "POLL_PREDECESSORS";
+    case RECONNECT_QUEUE:
+      return "RECONNECT_QUEUE";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+
+/* POLLING */
+
+void SafeNaimiTrehelSite::poll()
+{
+  switch(mechanism)
+  {
+    case POLL_PREDECESSORS:
+      // check if each predecessor is responsive
+      poll_predecessors();
+    break;
+
+    default:
+    break;
+  }
+}
+
+void SafeNaimiTrehelSite::poll_predecessors()
+{
+  // if there are still predecessors left try to contact the next one
+  if(!predecessors.empty())
+  {
+    send(ARE_YOU_ALIVE, predecessors.back());
+    reply_timer = TIMEOUT;
+  }
+  // if all the predecessors are gone we'll have to reconnect the queue
+  else
+  {
+    // but first, the queue needs to be rebuilt
+    broadcast_data(ARE_YOU_BEFORE, 1, queue_position);
+    reply_timer = 2 * TIMEOUT;
+    mechanism = RECONNECT_QUEUE;
+  }
+}
+
+
+/* TIMEOUT */
+
+void SafeNaimiTrehelSite::timeout()
+{
+  switch(mechanism)
+  {
+    case POLL_PREDECESSORS:
+      // pop predecessors if they are non-responsive
+      timeout_predecessors();
+    break;
+
+    default:
+    break;
+  }
+}
+
+void SafeNaimiTrehelSite::timeout_predecessors()
+{
+  // try the next in the queue, discarding the non-responsive one
+  if(!predecessors.empty())
+    predecessors.pop_back();
+  check_timer = 0;
+  reply_timer = -1;
 }

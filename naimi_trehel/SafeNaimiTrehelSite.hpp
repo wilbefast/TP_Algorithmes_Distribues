@@ -13,9 +13,10 @@ private:
 
   /* NESTING */
 private:
-  enum Fault
+  enum RecoveryMechanism
   {
-    NONE_DETECTED
+    POLL_PREDECESSORS,
+    RECONNECT_QUEUE,
   };
 
   /* ATTRIBUTES */
@@ -24,7 +25,7 @@ private:
   int check_timer;
   int reply_timer;
   int queue_position;
-  Fault fault;
+  RecoveryMechanism mechanism;
 
   /* METHODS */
 public:
@@ -36,6 +37,16 @@ protected:
   bool receive(const char* message, sid_t source);
   void queue(sid_t _next);
   void print_info();
+
+private:
+  // subroutines
+  const char* mechanism_to_cstr();
+  // fault detection queries
+  void poll();
+  void poll_predecessors();
+  // fault detection replies
+  void timeout();
+  void timeout_predecessors();
 };
 
 #endif // SAFENAIMITREHELSITE_HPP_INCLUDED
