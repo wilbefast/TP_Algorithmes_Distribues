@@ -118,6 +118,9 @@ bool SafeNaimiTrehelSite::receive(const char* message, sid_t source)
       position = (*it);
       it++;
       predecessors[position] = (*it);
+
+      // position of source is one more than its last predecessor
+      position++;
     }
     // the last id is the predecessor of the source of the message
     predecessors[position] = source;
