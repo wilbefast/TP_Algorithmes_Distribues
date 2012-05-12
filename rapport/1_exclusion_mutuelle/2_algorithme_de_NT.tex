@@ -1,6 +1,5 @@
-L’Algorithme de Naimi-Trehel est un algorithme distribué permettant de gérer l’accès à une ressource à une seule entrée.
-Ce dernier se base sur n sites [S0, S1, S2, …, Sn-1] qui vont vouloir chacun, à des moments donnés, accéder à une ressource (ressource système, programme informatique \dots etc) qui ne peut être utilisée par deux sites en même temps.
-Afin de gérer l’accès concurrent et l’exclusion mutuelle, celui-ci utilise un jeton en posant comme règle simple.
-Seul celui qui possède le jeton peut entrer en section critique.
-Un seul jeton existe sur tout le réseau, pas de décuplement.
-Bien entendu, afin que tout le monde puisse accéder à la ressource, les sites devront pouvoir se passer le jeton entre eux en fonction des demandes.
+L'algorithme de Naimi-Trehel est un protocole à jeton qui utilise, en plus d'un arbre distribué, une file d'attente distribué\footnote{file d'attente distribué : chaque site ne connait que le site qui se trouve directement après lui dans la file.}. La racine de l'arbre correspond donc pas à celui qui détient le jeton mais plutôt à celui qui se trouve au bout de la file.
+
+Un site voulant accéder à la ressource peut alors trouver le bout de la file en parcourant l'arbre. Le site peut alors demander à la racine qu'elle lui ajout en tant qui successeur pour devenir à son tour la racine et le bout de la file d'attente. À chaque sortie de section critique le jeton est passée le long de la file jusqu'à arriver, à un moment ou un autre (la section critique étant supposé finie), entre le mains de tout ceux qui se sont ajoutés au bout de la file.
+
+Il faut admirer l'élégance de cette solution : aucun site n'a l'image globale de la structure à laquelle il appartient, mais émerge pourtant un système qui assure à la fois l'exclusivité de l'accès à la ressource et l'ordre des demandes, tout ça avec une complexité logarithmique.

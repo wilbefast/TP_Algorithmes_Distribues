@@ -1,14 +1,15 @@
 Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'attendre la réponse, et l'algorithme de Naimi-Trehel ne fait pas un exception. Prenons par exemple le protocole de demande de la section critique :
 
 \begin{algorithm}[H]
-  \caption{$Demander_i$()}
+  \caption{$Supplier_i$()}
+  \label{nt_wait}
   \Donnees
   {\\
     i \textit{// numéro du site voulant accéder à la section critique}\\
   }
   \Deb
   {
-  	$demandeur_i$ $\leftarrow$ $\perp$ \;
+  	$demandeur_i$ $\leftarrow$ $\top$ \;
   	
   	\Si{$p\grave{e}re_i$ $\neq$ nil}
   	{

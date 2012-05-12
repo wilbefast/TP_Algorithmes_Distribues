@@ -1,28 +1,73 @@
 \subsubsection{Exécution pseudo-parallèle}
 
-Si nos machine peuvent tourner \og simultanément \fg{} plus de programmes qu'ils ont de processeurs c'est en itérant très rapidement à travers l'ensemble des processus \footnote {\og Timeslicing \fg{}}. 
+Si nos machine peuvent tourner \og simultanément \fg{} plus de programmes qu'ils ont de processeurs c'est en itérant très rapidement à travers l'ensemble des processus \footnote { Le terme en Anglais est \og Timeslicing \fg{}.}. 
 
 Nous pouvions ainsi nous limiter à un seul fil d'exécution par site qui tournera en boucle en passant à travers toutes les taches que le site devrait accomplir, à priori, en parallèle :
 
 \begin{algorithm}[H]
-  \caption{$Site::Boucle()$}
+  \caption{$Boucle_i()$}
   \Donnees
   {\\
-    this \textit{// le site courant}\\
+    i \textit{// le numéro du site courant}\\
   }
   \Deb
   {
-  	this.continuer $\leftarrow \top$ \;
-  	\Tq{ this.continuer }
+  	$continuer_i$ $\leftarrow \top$ \;
+  	\Tq{ $continuer_i$ }
 	 {
-	 	this.lire\_messages() \;
-	 	this.lire\_console() \;
-	 	\dots
+	 	$continuer_i$ $\leftarrow$ $lire\_messages_i()$ \;
+	 	$continuer_i$ $\leftarrow$ $lire\_console_i()$ \;
+	 	\dots \;
 	 }
   }	
 \end{algorithm}
 
-L'important ici est d'assurer qu'aucun de ces sous-routines ne soit bloquant. C'est le cas pour lire des datagrammes \texttt{UDP}\footnote{UDP : User-datagram protocole }, et nous pouvions récupérer des appuies clavier avec \texttt{SDL} ou \texttt{kbhit}\footnote{fonction ubiquité mais non-standard : ni POSIX, ni ANSI} de manière non-bloquante.
+L'important ici est d'assurer qu'aucun de ces sous-routines ne soit bloquant. C'est le cas pour lire des datagrammes \texttt{UDP}\footnote{UDP : User-datagram protocole. }, et nous pouvions récupérer des appuies clavier avec \texttt{SDL} ou \texttt{kbhit}\footnote{fonction ubiquité mais non-standard : ni POSIX, ni ANSI.} de manière non-bloquante.
 
 \subsubsection{Mémoire de l'état courant}
-Le vraie problème et le désavantage de cette manière de faire est que nous perdons en bouclant constamment la possibilité d'attendre à un endroit précis dans l'algorithme. 
+Le vraie problème et le désavantage de cette manière de faire est que nous perdons la possibilité d'attendre à un endroit précis de l'algorithme. Il serait inadmissible également de lancer en boucle l'algorithme de demande de section critique (voir page \pageref{nt_wait}) sans le changer radicalement, car nous risquerions d'envoyer plusieurs demandes. 
+
+Nous introduisons alors la notion d'état. Notre site sera, par exemple, dans l'état d'attendre le jeton, dans l'état d'être en section critique ou bien dans un état de repos. Il saura alors quoi faire quand il reçoit un message donnée :
+
+\begin{algorithm}[H]
+  \caption{$Supplier^{\prime}_i$()}
+  \label{nt_wait}
+  \Donnees
+  {\\
+    i \textit{// numéro du site voulant accéder à la section critique}\\
+  }
+  \Deb
+  {
+	$\acute{e}tat_i \leftarrow$ DEMANDEUR \;  
+  
+  	\Si{$p\grave{e}re_i$ $\neq$ nil}
+  	{
+  		Envoyer REQUEST à $p\grave{e}re_i$ \;
+  		$p\grave{e}re_i$ $\leftarrow$ nil \;
+  	}
+  }	
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \caption{$Boucle^{\prime}_i()$}
+  \Donnees
+  {\\
+    i \textit{// le numéro du site courant}\\
+  }
+  \Deb
+  {
+  	$continuer_i$ $\leftarrow \top$ \;
+  	\Tq{ $continuer_i$ }
+	 {
+	 	$continuer_i$ $\leftarrow$ $lire\_messages_i()$ \;
+	 	$continuer_i$ $\leftarrow$ $lire\_console_i()$ \;
+	 	\dots \;
+	 	\Si { ($etat_i$ = DEMANDER) $\wedge$ $avoir\_jeton_i$  }
+	 	{
+	 		section\_critique() \;
+	 	}
+	 }
+  }	
+\end{algorithm}
+
+Tout le travail fut alors de traduire les algorithmes originaux en un format adapté à cette manière de concevoir les choses.
