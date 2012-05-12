@@ -1,8 +1,77 @@
 \documentclass[a4paper,french,towsides,10pt]{book}
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage[french]{minitoc}
+\usepackage{multirow}
+\usepackage{placeins}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage[french,ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[bookmarks=true]{hyperref}
+
+\hypersetup{pdfborder={0 0 0}}
+\pagestyle{fancy}
+\setlength{\parskip}{1.5ex plus .4ex minus .4ex}
+\renewcommand{\labelitemi}{\textbullet}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
+\pagestyle{fancy}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+\fancyhf{}
+
+\fancyhead[RO,LE]{\thepage}
+\fancyhead[LO]{\leftmark}
+\fancyhead[RE]{\doctitle}
+
+\fancypagestyle{corps}{ 
+\fancyhead[RO,LE]{\thepage}
+\fancyhead[LO]{\rightmark}
+\fancyhead[RE]{\leftmark}
+}
+
+\renewcommand{\footrulewidth}{0pt} % pas de filet en bas
+\fancypagestyle{plain}{ % pages de tetes de chapitre
+\fancyhead{}
+% supprime l’entete
+\renewcommand{\headrulewidth}{0pt} % et le filet
+}
+\newcommand{\clearemptydoublepage}{%
+	\newpage{\pagestyle{empty}\cleardoublepage}}
+
+
+% definition des fonctions de la page de garde
+\input{includes/gardedef}
+
+% definition du titre et autres param
+\def\doctitle{Naimi-Trehel extended}
+\def\titre{\LARGE \doctitle}
+\def\sstitre{Rapport (Mai 2012)}
+\def\auteurs{
+      William \textsc{Dyce} \\
+      Amine \textsc{M. Elkhalsi}}
+      
+\def\url{https://github.com/cogitoTeam/artificial\_consciousness}
+
+\makeglossary
 
 \begin{document}
+\include{glossary_defines}
+\renewcommand{\labelitemii}{\textasteriskcentered}
+
+\dominitoc
+
+\input{includes/garde}
+\clearemptydoublepage
 
 William J. DYCE                                                                
 Remerciements :
