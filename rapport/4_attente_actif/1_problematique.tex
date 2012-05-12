@@ -1,0 +1,24 @@
+Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'attendre la réponse, et l'algorithme de Naimi-Trehel ne fait pas un exception. Prenons par exemple le protocole de demande de la section critique :
+
+\begin{algorithm}[H]
+  \caption{$Demander_i$()}
+  \Donnees
+  {\\
+    i \textit{// numéro du site voulant accéder à la section critique}\\
+  }
+  \Deb
+  {
+  	$demandeur_i$ $\leftarrow$ $\perp$ \;
+  	
+  	\Si{$p\grave{e}re_i$ $\neq$ nil}
+  	{
+  		Envoyer REQUEST à $p\grave{e}re_i$ \;
+  		$p\grave{e}re_i$ $\leftarrow$ nil \;
+  	}
+	attendre($avoir\_jeton_i$) \;
+  	section\_critique() \;
+
+  }	
+\end{algorithm}
+
+C'est très simple sur papier, mais en pratique cette function \og attendre \fg{} est non-triviale à implémenter tout simplement parce que le site de doit pas se bloquer dessus. En effet le site doit continuer à répondre aux messages qu'il reçoit pendant qu'il attend la section critique.  
