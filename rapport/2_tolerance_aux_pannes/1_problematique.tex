@@ -1,0 +1,9 @@
+
+
+Plusieurs auteurs ont défini des extensions tolérantes aux fautes des algorithmes à jeton. Nishio et al. proposent une extension fiable de l'algorithme à diffusion de Suzuki-Kasami.
+Pour régénérer le jeton, leur algorithme nécessite un acquittement de tous les sites. Ainsi, la défaillance d'un seul nœud retarde la régénération du jeton jusqu'à son retour. Afin d'avoir un recouvrement plus rapide Manivannan et Singhal présentent un nouvel algorithme dans lequel seuls les nœuds non fautifs doivent répondre. Cependant, leur approche n'est pas équitable devant les fautes car ils supposent que deux sites particuliers ne peuvent pas être en panne : le dernier nœud x ayant exécuté la section critique et celui à qui x à transmis le jeton.
+Chang et al. présentent un algorithme tolérant aux fautes basé sur un arbre de requête.
+La fiabilisation de l'arbre est assurée par l'introduction de chemins redondants et par l'utilisation d'un mécanisme d'élection. Cependant, l'ajout des chemins alternatifs et surtout le mécanisme de prévention de cycle augmentent significativement le coût de l'algorithme.
+Naimi et Tréhel introduisent une version fiable de leur algorithme. En absence de faute, l'algorithme initial n'est pas modifié. En revanche, le recouvrement des fautes est particulièrement coûteux en termes de messages et de latence.
+Plus récemment, Mueller a proposé aussi une version fiable de l'algorithme de Naimi-Tréhel sans utiliser de diffusions. Sa solution repose sur un anneau reliant tous les nœuds.
+Les inconvénients d'une telle approche sont sa faible extensibilité et, plus encore, son impossibilité à gérer plusieurs fautes simultanées.

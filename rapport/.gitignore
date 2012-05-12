@@ -5,6 +5,6 @@
 **.pdf
 **.glo
 **.maf
-**.mtc
-**.mtc0
+**.mtc*
 **.out
+**.toc

@@ -1,0 +1,6 @@
+L’Algorithme de Naimi-Trehel est un algorithme distribué permettant de gérer l’accès à une ressource à une seule entrée.
+Ce dernier se base sur n sites [S0, S1, S2, …, Sn-1] qui vont vouloir chacun, à des moments donnés, accéder à une ressource (ressource système, programme informatique \dots etc) qui ne peut être utilisée par deux sites en même temps.
+Afin de gérer l’accès concurrent et l’exclusion mutuelle, celui-ci utilise un jeton en posant comme règle simple.
+Seul celui qui possède le jeton peut entrer en section critique.
+Un seul jeton existe sur tout le réseau, pas de décuplement.
+Bien entendu, afin que tout le monde puisse accéder à la ressource, les sites devront pouvoir se passer le jeton entre eux en fonction des demandes.
