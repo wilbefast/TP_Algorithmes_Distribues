@@ -21,4 +21,10 @@ Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'a
   }	
 \end{algorithm}
 
-C'est très simple sur papier, mais en pratique cette function \og attendre \fg{} est non-triviale à implémenter tout simplement parce que le site de doit pas se bloquer dessus. En effet le site doit continuer à répondre aux messages qu'il reçoit pendant qu'il attend la section critique.  
+C'est très simple sur papier, mais en pratique cette function \og attendre \fg{} est non-triviale à implémenter car le site ne doit pas se bloquer dessus. En effet il doit continuer à regarder s'il reçoit des messages durant l'attente, sinon il ne saura jamais s'il a reçu le token entre-temps.
+
+Pour faciliter le débogage il faudrait aussi que nous puissions envoyer manuellement des messages aux sites par entré standard. Les sites doivent donc à tout instant être capables de répondre aux messages provenant ou du réseau, ou de l'utilisateur.
+ 
+Il faut donc développer une solution plus élaboré qu'une attente actif bloquant de la forme :
+
+\lstinputlisting[language=C++,morekeywords={}]{sources/sleep.cpp} 

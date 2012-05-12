@@ -6,6 +6,26 @@
 % Définition des fonctions pour la page de garde
 \input{includes/gardedef.tex}
 
+% For printing sources
+\definecolor{keyword}{rgb}{0.55,0,0} 
+\definecolor{type}{rgb}{0,0.55,0} 
+\definecolor{comment}{rgb}{0.5,0.5,0.5} 
+
+\lstset
+{
+	basicstyle=\scriptsize\sffamily,
+	numbers=left,
+	numberstyle=\scriptsize\color{comment},
+	keywordstyle=\color{keyword}\bfseries,
+	commentstyle=\color{comment},
+	breaklines=true,
+	fontadjust=true,
+	columns=fullflexible,
+	morekeywords=true
+}
+\lstset{emph={ varchar , integer , bigint , date , smallint , real , OLD , NEW , plpgsql , ROWTYPE},
+emphstyle=\color{type}}
+
 % Title, authors, etc
 \def\doctitle{Naimi-Trehel extended}
 \def\titre{\LARGE \doctitle}
@@ -74,10 +94,8 @@
 \input{4_attente_actif/1_problematique.tex}
 \subsection{Programmation concurrente}
 \input{4_attente_actif/2_programmation_concurrente.tex}
-\subsection{Protocole \texttt{UDP}}
-\input{4_attente_actif/3_udp.tex}
-\subsection{Lecture console non-bloquant}
-\input{4_attente_actif/4_console_non_bloquant.tex}
+\subsection{Protocole \texttt{Programmation par états}}
+\input{4_attente_actif/3_programmation_par_etats.tex}
 
 % ----------------------------------------------------------------------------------
 % CONCLUSION

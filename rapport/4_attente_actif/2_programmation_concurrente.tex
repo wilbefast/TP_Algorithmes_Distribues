@@ -1,0 +1,12 @@
+\subsubsection{Multi-processus}
+Une première idée fut d'utiliser un \texttt{fork} au moment de l'attente : nous créons ainsi deux sous-processus, père et fils, le premier pour attendre et l'autre pour retourner s'occuper des autres taches. Cette approche à première vu assez prometteur pose cependant de nombreux problèmes. 
+
+La mémoire n'est pas partagé entre processus mais copié lors du branchement. De ce fait chaque processus travail sur une version locale du site, avec ses propres attributs : nous nous trouvons ainsi avec deux sites en locale, un vrai gaspillage de mémoire. C'est aussi un problème non-triviale synchroniser le deux pour les faire communiquer \dots 
+
+\subsubsection{Multi-thread}
+Les fils d'exécution ont l'avantage de partager de la mémoire, ce qui permettrai aux deux d'accéder au même structure site. La bibliothèque \texttt{SDL} a en plus sa propre structure \texttt{SDL\_Thread} permettant une utilisation basique très facile à comprendre. 
+
+Cependant nous ne nous échappons pas des problèmes de synchronisation et d'exclusion mutuelle. C'est en fait ironique qu'on implémentant un algorithme d'exclusion mutuelle réseau nous nous retrouvons avec des problèmes d'exclusion mutuelle locaux. Nous aurions pu, par exemple, utiliser Naimi-Trehel pour implémenter Naimi-Trehel.
+
+\subsubsection{Conclusion}
+La programmation concurrente fut finalement abandonné au profit d'une solution plus simple et moins \og fractale \fg{} : celui de programmation par état.
