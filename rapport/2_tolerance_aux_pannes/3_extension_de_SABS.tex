@@ -2,10 +2,9 @@ L'idée de l'extension de \mbox{Julien} \mbox{Sopena}, \mbox{Luciana} \mbox{Aran
 
 \begin{itemize}
 \item Si la chaine perd une maille le site dernière n'a que se connecter au prochain successeur.
-\item Si la chaine perd $k$ mailles successives le site doit chercher le reste de la file \dots
+\item Si la chaine perd $k$ mailles successives le site dernière devra chercher le reste de la file \dots
 \end{itemize}
 
-Pour permettre cette deuxième opération nous stockons en plus la position dans la file pour chaque site, donc le nombre de mailles entre lui et le jeton. Il nous est alors possible, même si $k$ sites séquentielles tombent en panne, de trouver la bonne position dans la file. Cette reconstruction fait cependant appelle à des diffusions, donc il vaut mieux que $k$ soit assez grand pour que nous puissions éviter cette éventualité la plupart du temps.
+Pour permettre cette deuxième opération nous stockons en plus la position dans la file pour chaque successeur, donc le nombre de mailles entre lui et le jeton. Il nous est alors possible, même si $k$ sites séquentielles tombent en panne, de trouver la bonne position dans la file. Cette reconstruction fait cependant appelle à des diffusions, donc il vaut mieux que $k$ soit assez grand pour que nous puissions éviter cette éventualité la plupart du temps.
 
-Il est à noter que nous sacrifions en partie l'élégance de la solution de base en stockant de sous-parties de la file sur chaque site. Clairement la redondance est importante pour les systèmes distribués sujet au bruits. 
-Il est également intéressant d'observer cette corrélation directe entre l'instabilité d'une société multi-agent et la manque de vue d'ensemble des éléments qui le compose. La généralisation de connaissances et non la spécialisation serait roi.
+Il est à noter que nous sacrifions en partie l'élégance de la solution de base en stockant de sous-parties de la file sur chaque site. Clairement la redondance est importante pour les systèmes distribués sujet au bruits : il y aurait une corrélation directe entre l'instabilité d'une société et la manque de vue d'ensemble des agents qui le composent.

@@ -1,12 +1,12 @@
-Plusieurs extensions ont étés proposés pour combler les faiblesses des algorithmes à jeton :
+Plusieurs extensions ont étés proposés pour combler les faiblesses des protocoles à jeton :
 
 \begin{itemize} 
 \item Nishio et al. proposent une extension fiable de l'algorithme à diffusion de Suzuki-Kasami. Pour régénérer le jeton, leur algorithme nécessite un acquittement de tous les sites. Ainsi, la défaillance d'un seul nœud retarde la régénération du jeton jusqu'à son retour. 
 \item Afin d'avoir un recouvrement plus rapide Manivannan et Singhal présentent un nouvel algorithme dans lequel seuls les nœuds non fautifs doivent répondre. Cependant, leur approche n'est pas équitable devant les fautes car ils supposent que deux sites particuliers ne peuvent pas être en panne : le dernier nœud x ayant exécuté la section critique et celui à qui x à transmis le jeton.
 \item Chang et al. présentent un algorithme tolérant aux fautes basé sur un arbre de requête. La fiabilité de l'arbre est assurée par l'introduction de chemins redondants et par l'utilisation d'un mécanisme d'élection. Cependant, l'ajout des chemins alternatifs et surtout le mécanisme de prévention de boucles augmentent significativement le coût de l'algorithme.
 \item Naimi et Tréhel introduisent une version fiable de leur algorithme. En absence de faute, l'algorithme initial n'est pas modifié. En revanche, le recouvrement des fautes est particulièrement coûteux en termes de messages et de latence, et l'ordre des demandes est perdu : il faut complètement régénérer l'arbre et la file, ce qui nécessite de multiple diffusions. 
-\item Plus récemment, Mueller a proposé aussi une version fiable de l'algorithme de Naimi-Tréhel sans utiliser de diffusions. Sa solution repose sur un anneau reliant tous les nœuds.
+\item Plus récemment, Mueller a lui-aussi proposé une version fiable de l'algorithme de Naimi-Tréhel sans utiliser de diffusions. Sa solution repose sur un anneau reliant tous les nœuds.
 Les inconvénients d'une telle approche sont sa faible extensibilité et, plus encore, son impossibilité à gérer plusieurs fautes simultanées.
 \end{itemize}
 
-Cependant ne figure pas ici de solution permettant ajouter une complète fiabilité (soit N-1 pannes quelconques) sans sacrifier de complexité.
+Cependant ne figure pas ici de solution permettant ajouter une complète fiabilité (soit N-1 pannes quelconques) sans sacrifier la borne de complexité.

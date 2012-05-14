@@ -1,3 +1,7 @@
-Chaque site s'identifie par le premier entier non déjà pris par un autre site : il peut connaitre quelles identificateurs sont prises en regardant un simple fichier registre. Le nouveau site s'inscrit alors sur la liste et informe les autres de son existence grâce à une première diffusion. Il enlèvera aussi son identificateur lors de sa destruction.
+Nous voulions lançons plusieurs sur la même machine à fin de tester sans avoir besoin d'infrastructure réseau, donc chaque objet site tournera dans un processus qu'il monopolise. Ceci pose un problème pour l'identification par contre : nous ne sommes pas réelement en réseau donc il n'est pas possible de se reposer sur les adresses \texttt{IP} ou \texttt{MAC}. Une solution ad-hoc est requise.
+
+Le locale est pourtant un gros avantage : le système de fichiers permet une communication \og Black-board \fg{} à l'initialisation. Chaque site s'identifiera donc par le premier entier non déjà pris par un autre site : il peut connaitre quelles identificateurs sont prises en regardant un simple fichier registre. Le nouveau site s'inscrit alors sur la liste et informe les autres de son existence grâce à une première diffusion. Nous expliquerons comment cette diffusion est faite par la suite.
+
+Ce processus garantie que tous les sites connaissent tous les autres sites actifs. Chaque pair est ajouté ou, s'il fut lancé avant, en regardant le registre ou, s'il fut lancé après, lors de la réception de sa première diffusion. 
 
 

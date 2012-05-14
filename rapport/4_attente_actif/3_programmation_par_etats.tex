@@ -1,6 +1,6 @@
 \subsubsection{Exécution pseudo-parallèle}
 
-Si nos machine peuvent tourner \og simultanément \fg{} plus de programmes qu'ils ont de processeurs c'est en itérant très rapidement à travers l'ensemble des processus \footnote { Le terme en Anglais est \og Timeslicing \fg{}.}. 
+Si nos machine peuvent tourner \og simultanément \fg{} plus de programmes qu'ils ont de processeurs c'est en itérant très rapidement à travers l'ensemble de ces processus \footnote { Le terme en Anglais est \og Timeslicing \fg{}.}. 
 
 Nous pouvions ainsi nous limiter à un seul fil d'exécution par site qui tournera en boucle en passant à travers toutes les taches que le site devrait accomplir, à priori, en parallèle :
 
@@ -22,10 +22,10 @@ Nous pouvions ainsi nous limiter à un seul fil d'exécution par site qui tourne
   }	
 \end{algorithm}
 
-L'important ici est d'assurer qu'aucun de ces sous-routines ne soit bloquant. C'est le cas pour lire des datagrammes \texttt{UDP}\footnote{UDP : User-datagram protocole. }, et nous pouvions récupérer des appuies clavier avec \texttt{SDL} ou \texttt{kbhit}\footnote{fonction ubiquité mais non-standard : ni POSIX, ni ANSI.} de manière non-bloquante.
+L'important ici est d'assurer qu'aucun de ces sous-routines ne soit bloquant. C'est le cas pour lire des messages \texttt{UDP}\footnote{UDP : User-datagram protocole. }, et nous pouvions récupérer des appuies clavier avec \texttt{SDL} ou \texttt{kbhit}\footnote{kbhit : fonction renvoyant vrai lors d'une frappe clavier. Ubiquité mais non-standard : ni POSIX, ni ANSI.} de manière non-bloquante.
 
 \subsubsection{Mémoire de l'état courant}
-Le vraie problème et le désavantage de cette manière de faire est que nous perdons la possibilité d'attendre à un endroit précis de l'algorithme. Il serait inadmissible également de lancer en boucle l'algorithme de demande de section critique (voir page \pageref{nt_wait}) sans le changer radicalement, car nous risquerions d'envoyer plusieurs demandes. 
+Ceci peut avoir l'air évident mais ce n'est pas sans inconvénients. Le vraie problème et le désavantage de cette manière de faire est que nous perdons la possibilité d'attendre à un endroit précis de l'algorithme. Il serait inadmissible également de lancer en boucle les algorithmes tels celui demande de section critique (voir page \pageref{nt_wait}) sans le changer radicalement, car nous risquerions d'envoyer plusieurs demandes. 
 
 Nous introduisons alors la notion d'état. Notre site sera, par exemple, dans l'état d'attendre le jeton, dans l'état d'être en section critique ou bien dans un état de repos. Il saura alors quoi faire quand il reçoit un message donnée :
 

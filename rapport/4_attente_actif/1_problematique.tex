@@ -1,4 +1,4 @@
-Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'attendre la réponse, et l'algorithme de Naimi-Trehel ne fait pas un exception. Prenons par exemple le protocole de demande de la section critique :
+Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'attendre la réponse, et l'algorithme de Naimi-Trehel ne fait pas exception. Prenons par exemple le protocole de demande de la section critique :
 
 \begin{algorithm}[H]
   \caption{$Supplier_i$()}
@@ -22,7 +22,7 @@ Les algorithmes distribués ont très souvent besoin d'envoyer un message et d'a
   }	
 \end{algorithm}
 
-C'est très simple sur papier, mais en pratique cette function \og attendre \fg{} est non-triviale à implémenter car le site ne doit pas se bloquer dessus. En effet il doit continuer à regarder s'il reçoit des messages durant l'attente, sinon il ne saura jamais s'il a reçu le token entre-temps.
+C'est très simple sur papier, mais en pratique cette function \texttt{attendre} est non-triviale à implémenter car le site ne doit pas se bloquer dessus. En effet il doit continuer à regarder s'il reçoit des messages durant l'attente, sinon il ne saura jamais s'il a reçu le token entre-temps !
 
 Pour faciliter le débogage il faudrait aussi que nous puissions envoyer manuellement des messages aux sites par entré standard. Les sites doivent donc à tout instant être capables de répondre aux messages provenant ou du réseau, ou de l'utilisateur.
  

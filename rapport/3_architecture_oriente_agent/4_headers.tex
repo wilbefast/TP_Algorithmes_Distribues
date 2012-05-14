@@ -1,10 +1,12 @@
-Nous présentons ici les interfaces incomplètes de nos classes principaux. Certaines fonctions et attributs sans grand intérêt ont été enlevés pour faciliter la lecture :
+Nous présentons ici des interfaces de nos classes principaux, avec certaines fonctions et attributs peu intéressants enlevés pour faciliter la lecture :
 
-\subsection{Couche transport : \texttt{Site}}
+\subsubsection{Couche transport : \texttt{Site}}
 \lstinputlisting[language=C++,morekeywords={}]{sources/Site.hpp} 
+\emph{Intéressant ici : utilisation de listes d'arguments pour envoyer un nombre arbitraires d'entiers. Ils seront converties en string, puis reconverties en entiers à la réception par d'autres fonctions.}
 
-\subsection{Couche exclusion : \texttt{NaimiTrehelSite}}
+\subsubsection{Couche exclusion : \texttt{NaimiTrehelSite}}
 \lstinputlisting[language=C++,morekeywords={}]{sources/NaimiTrehelSite.hpp} 
 
-\subsection{Couche sureté : \texttt{SafeNaimiTrehelSite}}
+\subsubsection{Couche sureté : \texttt{SafeNaimiTrehelSite}}
 \lstinputlisting[language=C++,morekeywords={}]{sources/SafeNaimiTrehelSite.hpp} 
+\emph{Par la suite nous expliquerons l'utilisation des états pour conditionner le comportement des sites.}

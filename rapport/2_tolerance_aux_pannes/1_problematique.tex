@@ -1,5 +1,5 @@
-Les algorithmes à base de permissions utilisent généralement un nombre linear\footnote{ Linear : proportionnelle au nombre de sites. } de messages, mais ils ont l'avantage de pouvoir tolérer les pannes tant que nous pouvons supposer que tout site non défaillant répondra au bout d'une durée finie. Il suffit alors de lancer un compteur et de supposer l'acquittement de tout site n'aillant pas répondu au bout d'un certain temps.
+Pour réitérer, les algorithmes à base de permissions utilisent généralement un nombre linéaire\footnote{ linéaire : proportionnelle au nombre de sites. } de messages. Ils ont cependant l'avantage de pouvoir tolérer les pannes tant que nous pouvons supposer que tout site non défaillant répondra au bout d'une durée finie. En effet, il suffit de lancer un compteur et de supposer l'acquittement de tout site n'aillant pas répondu au bout d'un certain temps.
 
 Ce n'est pas le cas des algorithmes à base de jeton. Ceux qui utilisant une structure distribué sans redondances sont particulièrement vulnérables aux pannes de sites. C'est le cas de l'algorithme de Naimi-Trehel : aucun site n'aillant de vision globale, une panne enlèvera très souvent la connectivité de l'arbre ou la file d'attente.
 
-Or les applications réels nécessitent souvent des tolérances aux pannes : comment donc adapter l'algorithmes pour que le système engendré puisse résister aux échecs?
+Or les applications réels nécessitent souvent des tolérances aux pannes : comment donc adapter l'algorithme pour que le système engendré puisse résister aux échecs?
